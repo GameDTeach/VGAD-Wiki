@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setting up nDisplay · VGAD Wiki</title>
+  <meta name="description"
+    content="Drive the Futures Studio LED wall from Unreal Engine: render nodes, nDisplay config, Mo-Sys tracking and Switchboard.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/wiki.css">
+</head>
+
+<body data-progress-key="ndisplay-guide-progress">
+
+  <div class="wikibar">
+    <div class="wikibar-inner">
+      <a class="home" href="../../"><span class="arrow">&larr;</span> VGAD Wiki</a>
+      <span class="crumb"><span class="sep">/</span> <span>Virtual Production</span> <span class="sep">/</span>
+        <span class="here">Setting up nDisplay</span></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Setting up nDisplay</h1>
+        <p class="lede">How to get an Unreal project onto the LED wall in Futures Studio, with the camera tracked so the
+          wall reacts when the camera moves.</p>
+        <p>Written for Unreal 5.7, and tested from 5.4 upwards. It uses FS_BB1 and FS_BB2 as the editor machines. Work
+          through it in order — later parts depend on names you set earlier.</p>
+      </div>
+      <div class="graph" role="img"
+        aria-label="Diagram: the editor machine sends the scene to two render nodes, which feed the Brompton processors and the LED wall, while the tracked camera feeds its position back to the editor.">
+        <svg viewBox="0 0 560 276" xmlns="http://www.w3.org/2000/svg"
+          font-family="Atkinson Hyperlegible, Segoe UI, sans-serif">
+
+          <!-- signal path, left to right -->
+          <path d="M165 76 H193" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <polygon points="193,70 207,76 193,82" fill="#fff" opacity=".85" />
+          <path d="M352 76 H380" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <polygon points="380,70 394,76 380,82" fill="#fff" opacity=".85" />
+
+          <!-- tracking feeds back up into the editor -->
+          <path d="M95 196 V136" stroke="#6FD19E" stroke-width="3" fill="none" stroke-dasharray="6 5" />
+          <polygon points="88,136 95,122 102,136" fill="#6FD19E" />
+
+          <!-- editor -->
+          <g>
+            <rect x="20" y="30" width="145" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M20 40 a10 10 0 0 1 10 -10 h125 a10 10 0 0 1 10 10 v18 h-145z" fill="#2F6FDE" />
+            <text x="34" y="52" fill="#fff" font-size="14" font-weight="700">Editor</text>
+            <text x="34" y="85" fill="#C9D5EA" font-size="12.5">FS_BB1 runs</text>
+            <text x="34" y="104" fill="#C9D5EA" font-size="12.5">the project</text>
+          </g>
+
+          <!-- render nodes -->
+          <g>
+            <rect x="207" y="30" width="145" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M207 40 a10 10 0 0 1 10 -10 h125 a10 10 0 0 1 10 10 v18 h-145z" fill="#7B4FD6" />
+            <text x="221" y="52" fill="#fff" font-size="14" font-weight="700">Render nodes</text>
+            <text x="221" y="85" fill="#C9D5EA" font-size="12.5">Node0 · Node1</text>
+            <text x="221" y="104" fill="#C9D5EA" font-size="12.5">one per wall</text>
+          </g>
+
+          <!-- wall -->
+          <g>
+            <rect x="394" y="30" width="146" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M394 40 a10 10 0 0 1 10 -10 h126 a10 10 0 0 1 10 10 v18 h-146z" fill="#1F9E6A" />
+            <text x="408" y="52" fill="#fff" font-size="14" font-weight="700">LED wall</text>
+            <text x="408" y="85" fill="#C9D5EA" font-size="12.5">via Brompton</text>
+            <text x="408" y="104" fill="#C9D5EA" font-size="12.5">left + right</text>
+          </g>
+
+          <!-- camera -->
+          <g>
+            <rect x="20" y="196" width="176" height="58" rx="10" fill="#1E2C46" stroke="#3B5C4C" />
+            <text x="34" y="220" fill="#6FD19E" font-size="13.5" font-weight="700">Arri + Mo-Sys</text>
+            <text x="34" y="240" fill="#9FB6AA" font-size="12">tracks where it looks</text>
+          </g>
+          <text x="214" y="219" fill="#6FD19E" font-size="12.5">Its position feeds back, so the</text>
+          <text x="214" y="239" fill="#6FD19E" font-size="12.5">wall shows the right view for the lens.</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="toc" aria-label="Guide sections">
+      <h2>In this guide</h2>
+      <ol id="toc">
+        <li><a href="#kit">What you need</a></li>
+        <li><a href="#server">Start the render nodes</a></li>
+        <li><a href="#remote">Remote into the nodes</a></li>
+        <li><a href="#project">Prepare the Unreal project</a></li>
+        <li><a href="#camera">Add the camera</a></li>
+        <li><a href="#config">Create the nDisplay config</a></li>
+        <li><a href="#meshes">Config: screens and ICVFX camera</a></li>
+        <li><a href="#cluster">Config: cluster nodes</a></li>
+        <li><a href="#livelink">Add Mo-Sys Live Link</a></li>
+        <li><a href="#attach">Attach the camera to the config</a></li>
+        <li><a href="#sync">Copy the project to every machine</a></li>
+        <li><a href="#switchboard">Launch it with Switchboard</a></li>
+      </ol>
+      <p class="toc-progress" id="progress" aria-live="polite"></p>
+      <button class="reset" id="reset" type="button">Clear my ticks</button>
+    </nav>
+
+    <main>
+
+      <!-- Part 1: What you need -->
+
+      <section class="part" id="kit">
+        <div class="part-head">
+          <div class="part-num">1</div>
+          <div>
+            <h2>What you need</h2>
+            <p>Check all of this is in the room and switched on before you start.</p>
+          </div>
+        </div>
+
+        <ul>
+          <li><strong>Unreal Engine</strong> — this guide uses 5.7, and has been tested from 5.4 up</li>
+          <li><strong>FreeFileSync</strong>, for copying the project between machines</li>
+          <li><strong>Editor computers</strong> — FS_BB1, with FS_BB2 as a second editor</li>
+          <li><strong>Two render nodes</strong>, in the server room</li>
+          <li><strong>Arri camera with Mo-Sys</strong> tracking</li>
+        </ul>
+
+        <h3>Devices and addresses</h3>
+        <p>You'll need these repeatedly, so they're gathered here rather than scattered through the steps. Come back to
+          this table whenever a step asks for an IP address.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>What it does</th>
+                <th>IP address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>FS_BB1</strong></td>
+                <td>Main editor machine — you'll build the project here</td>
+                <td class="ip">10.10.10.35</td>
+              </tr>
+              <tr>
+                <td><strong>FS_BB2</strong></td>
+                <td>Second editor, also used to remote into the nodes</td>
+                <td class="ip">10.10.10.36</td>
+              </tr>
+              <tr>
+                <td><strong>Node0</strong></td>
+                <td>Render node driving one side of the wall</td>
+                <td class="ip">10.10.10.111</td>
+              </tr>
+              <tr>
+                <td><strong>Node1</strong></td>
+                <td>Render node driving the other side</td>
+                <td class="ip">10.10.10.112</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Wall resolutions</h3>
+        <p>You'll type these into the config in Part 8.</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Side</th>
+                <th>Resolution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Left</td>
+                <td class="ip">2000 × 1400</td>
+              </tr>
+              <tr>
+                <td>Right</td>
+                <td class="ip">2200 × 1400</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="kit"> Everything is here</label>
+      </section>
+
+      <!-- Part 2: Start the render nodes -->
+
+      <section class="part" id="server">
+        <div class="part-head">
+          <div class="part-num">2</div>
+          <div>
+            <h2>Start the render nodes</h2>
+            <p>In the server room. Do this first — the nodes take a while to come up.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Turn on both render nodes.</li>
+          <li>Check each node's HDMI cable is connected to the Brompton processor's <span class="ui">HDMI IN</span>.</li>
+        </ol>
+
+        <div class="note"><strong class="label">The cables are colour-coded</strong>
+          <p>Every HDMI cable is labelled with the Brompton machine it belongs in, top or bottom.</p>
+          <p><strong>Yellow</strong> is the render nodes. <strong>Pink</strong> is the Disguise machines. If you are
+            following this guide you want the yellow ones.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="server"> Nodes are on and connected</label>
+      </section>
+
+      <!-- Part 3: Remote into the nodes -->
+
+      <section class="part" id="remote">
+        <div class="part-head">
+          <div class="part-num">3</div>
+          <div>
+            <h2>Remote into the nodes</h2>
+            <p>You drive both render nodes from an editor machine rather than going back to the server room.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Turn on FS_BB1 and FS_BB2. This part is done from FS_BB2.</li>
+          <li>Open <span class="ui">TightVNC</span>.</li>
+          <li>When prompted, enter the IP address of one node — <span class="ip">10.10.10.111</span> for Node0.</li>
+          <li>Click the <span class="ui">New connection</span> icon and add the other node, <span
+              class="ip">10.10.10.112</span>.</li>
+          <li>Log into both nodes.</li>
+          <li>On each node, open <span class="ui">Switchboard Listener</span> for the version of Unreal you are using.
+            There should be a desktop shortcut.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Can't find the listener?</strong>
+          <p>If you're on a different Unreal version, or the shortcut isn't there, the listener lives on the desktop of FS_BB1. If you need to create a new one follow the Unreal Guide:</p>
+          <p><a href="https://dev.epicgames.com/documentation/unreal-engine/switchboard-quick-start?application_version=4.27">Switchboard Quick Start</a></p>
+          <p>Make a new desktop shortcut to it while you're there, so the next person doesn't have to hunt for it.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="remote"> Both nodes are running the listener</label>
+      </section>
+
+      <!-- Part 4: Prepare the Unreal project -->
+
+      <section class="part" id="project">
+        <div class="part-head">
+          <div class="part-num">4</div>
+          <div>
+            <h2>Prepare the Unreal project</h2>
+            <p>On FS_BB1. Plugins first, then the wall meshes.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Open a new or existing Unreal project.</li>
+          <li>Go to <span class="ui">Edit</span> → <span class="ui">Plugins</span> and enable <strong>Mo-Sys
+              Livelink</strong> (the free version), <strong>Multi-User Editor</strong> and <strong>nDisplay</strong>.
+          </li>
+          <li>Unreal will ask to restart. <strong>Close the project instead</strong> — the next step adds files to it
+            from outside the editor.</li>
+          <li>Navigate to your project folder, open <code>Content</code>, and copy in the folder containing
+            <code>SM_FS_Left_Wall.uasset</code> and <code>SM_FS_Right_Wall.uasset</code>.</li>
+          <li>Open the project again.</li>
+          <li>Delete any actors you don't need, such as <span class="ui">PlayerStart</span>.</li>
+        </ol>
+
+        <div class="note"><strong class="label">Where the wall meshes live</strong>
+          <p>On the FS_BB1 desktop, in <span class="path">FS nDisplay Asset</span> → <span class="path">VP Wall
+              meshes</span>.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="project"> Plugins on, meshes imported</label>
+      </section>
+
+      <!-- Part 5: Add the camera -->
+
+      <section class="part" id="camera">
+        <div class="part-head">
+          <div class="part-num">5</div>
+          <div>
+            <h2>Add the camera</h2>
+            <p>This is the camera the wall will render for. It stands in for the real Arri.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Click <span class="ui">Quickly add to the project</span>, and under <span class="ui">Cinematic</span>
+            choose <span class="ui">Cine Camera Actor</span>.</li>
+          <li>Give it a name you'll recognise later, such as <code>Frustum</code> or <code>ArriCam</code>.</li>
+          <li>Zero out its location.</li>
+        </ol>
+
+        <div class="note"><strong class="label">Remember the name</strong>
+          <p>You'll select this camera by name in Part 7, and attach tracking to it in Part 10. Naming it
+            <code>CineCameraActor1</code> will make both harder than they need to be.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="camera"> Camera added and zeroed</label>
+      </section>
+
+      <!-- Part 6: Create the nDisplay config -->
+
+      <section class="part" id="config">
+        <div class="part-head">
+          <div class="part-num">6</div>
+          <div>
+            <h2>Create the nDisplay config</h2>
+            <p>The config is the asset that describes the wall: its shape, and which machine draws which part of it.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>In the Content Drawer click <span class="ui">Add</span> → <span class="ui">nDisplay</span> → <span
+              class="ui">nDisplay Config</span> → <span class="ui">Create New Config</span>.</li>
+          <li>Name it something that identifies the space, such as <code>nDCFuturesStudio</code>.</li>
+          <li>Drag the config into your scene and zero out its location.</li>
+          <li>Double-click the config in the Content Browser to open the nDisplay editor in its own window.</li>
+        </ol>
+
+        <label class="done-toggle"><input type="checkbox" data-part="config"> Config created and in the scene</label>
+      </section>
+
+      <!-- Part 7: Config, screens and ICVFX camera -->
+
+      <section class="part" id="meshes">
+        <div class="part-head">
+          <div class="part-num">7</div>
+          <div>
+            <h2>Config: screens and ICVFX camera</h2>
+            <p>Inside the nDisplay editor. You're telling nDisplay the physical shape of the wall.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Delete the default <span class="ui">nDisplay Screen</span>.</li>
+          <li>Click <span class="ui">Add</span> → <span class="ui">Static Mesh</span> and name it <code>Left</code>. Add
+            a second and name it <code>Right</code>.</li>
+          <li>Click <span class="ui">Add</span> → <span class="ui">ICVFX Camera</span>.</li>
+          <li>With the ICVFX Camera selected, search the details panel for <span class="ui">Cine Camera Actor</span> and
+            pick the camera you made in Part 5.</li>
+          <li>Select the <code>Left</code> static mesh, find <span class="ui">Static Mesh</span> in the details panel,
+            and set it to <code>SM_FS_Left_Wall</code>. Do the same for <code>Right</code> with
+            <code>SM_FS_Right_Wall</code>.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Watch the hierarchy</strong>
+          <p><code>Left</code>, <code>Right</code> and the ICVFX Camera must all be direct children of the <span
+              class="ui">Root Component</span>.</p>
+          <p>It is easy to drop one inside the other by accident. If a mesh ends up nested under another mesh, the wall
+            will not render correctly. Check the tree before moving on.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="meshes"> Screens and ICVFX camera in place</label>
+      </section>
+
+      <!-- Part 8: Config, cluster nodes -->
+
+      <section class="part" id="cluster">
+        <div class="part-head">
+          <div class="part-num">8</div>
+          <div>
+            <h2>Config: cluster nodes</h2>
+            <p>Now you say which render node draws which screen. Do the left side first, then repeat for the right.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Click <span class="ui">Add</span> → <span class="ui">Add New Cluster Node</span>. A window appears.</li>
+          <li>Under <span class="ui">Network</span>, enter the IP address of Node0: <span class="ip">10.10.10.111</span>.
+          </li>
+          <li>Under <span class="ui">Configuration</span>, tick <span class="ui">Fullscreen</span>.</li>
+          <li>Under <span class="ui">Window</span>, set the size to the resolution for that side — <span class="ip">2000
+              × 1400</span> for the left.</li>
+          <li>Click <span class="ui">Add</span>.</li>
+          <li>Select the viewport that appears (<code>VP_0</code>). In the details panel, under <span
+              class="ui">Projection Policy</span>, change the type to <span class="ui">Mesh</span>, then pick the
+            <code>Left</code> mesh from the dropdown.</li>
+          <li>Repeat steps 1 to 6 for the right side: Node1 at <span class="ip">10.10.10.112</span>, <span
+              class="ip">2200 × 1400</span>, and the <code>Right</code> mesh on <code>VP_1</code>.</li>
+        </ol>
+
+        <div class="note check"><strong class="label">If the image looks distorted</strong>
+          <p>Select the <span class="ui">Default View Point</span> — the eye icon — and move it away from the wall. The
+            distortion is the view point sitting too close to the mesh, not a mistake in the config.</p>
+        </div>
+
+        <ol class="steps" start="8">
+          <li>Click <span class="ui">Compile</span>, then save, and close the nDisplay editor.</li>
+        </ol>
+
+        <p>Back in your level you should now see the VP wall standing in your environment.</p>
+
+        <label class="done-toggle"><input type="checkbox" data-part="cluster"> Both nodes configured and compiled</label>
+      </section>
+
+      <!-- Part 9: Mo-Sys Live Link -->
+
+      <section class="part" id="livelink">
+        <div class="part-head">
+          <div class="part-num">9</div>
+          <div>
+            <h2>Add Mo-Sys Live Link</h2>
+            <p>Live Link is what carries the camera's real-world position into Unreal.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Go to <span class="ui">Window</span> → <span class="ui">Virtual Production</span> → <span class="ui">Live
+              Link</span>.</li>
+          <li>Delete any sources you don't need.</li>
+          <li>Click <span class="ui">Add Source</span> → <span class="ui">Mo-Sys Hardware Source</span> → <span
+              class="ui">UDP Mode</span> → <span class="ui">OK</span>.</li>
+          <li>Make sure <span class="ui">StarTracker</span> is selected, and give it a name.</li>
+          <li>Under <span class="ui">Tracking</span>, enter the IP address of the machine you are working on.</li>
+          <li>Click <span class="ui">Add New Subject</span>. If Mo-Sys is set up on the camera you'll get a green tick.
+          </li>
+          <li>Go to <span class="ui">Presets</span> → <span class="ui">Save As Preset</span>, and name it after the
+            machine — <code>BB1</code>.</li>
+        </ol>
+
+        <h3>One preset per machine</h3>
+        <p>Every editor and every render node needs its own preset, because each one has a different IP address.</p>
+
+        <ol class="steps" start="8">
+          <li>Click the <span class="ui">Mo-Sys UDP</span> source and change the IP address to the next device.</li>
+          <li>Save it as a preset named after that device.</li>
+          <li>Repeat until all four devices in the table in Part 1 have a preset.</li>
+          <li>Go back to <span class="ui">Presets</span> and select the preset for the machine you are actually sitting
+            at.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">The yellow warning is expected</strong>
+          <p>When you point the source at a machine you aren't sitting at, Live Link shows a yellow "invalid" warning.
+            That's correct — the tracking data isn't arriving at this machine. Save the preset anyway.</p>
+          <p>Step 11 matters. If you leave the preset pointed at another machine, tracking will look broken on this one.
+          </p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="livelink"> A preset saved for every device</label>
+      </section>
+
+      <!-- Part 10: Attach the camera -->
+
+      <section class="part" id="attach">
+        <div class="part-head">
+          <div class="part-num">10</div>
+          <div>
+            <h2>Attach the camera to the config</h2>
+            <p>This is the step where the scene starts moving with the real camera.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>In the Outliner, drag your Cine Camera Actor onto the nDisplay config so it becomes a child of it.</li>
+          <li>With the camera selected, in the details panel click <span class="ui">Add</span> and search for <span
+              class="ui">MoSys LiveLink Component Controller</span>.</li>
+          <li>In that component, find <span class="ui">LiveLink</span> → <span class="ui">Subject
+              Representation</span> and set it to your StarTracker subject.</li>
+        </ol>
+
+        <div class="note check"><strong class="label">What you should see</strong>
+          <p>The camera jumps to a new position. That's the point — it's now taking its position from the tracking
+            system rather than from where you left it in the viewport.</p>
+        </div>
+
+        <ol class="steps" start="4">
+          <li>Make any remaining edits to your scene, then save and close the project.</li>
+        </ol>
+
+        <label class="done-toggle"><input type="checkbox" data-part="attach"> Camera is tracking</label>
+      </section>
+
+      <!-- Part 11: FreeFileSync -->
+
+      <section class="part" id="sync">
+        <div class="part-head">
+          <div class="part-num">11</div>
+          <div>
+            <h2>Copy the project to every machine</h2>
+            <p>Each render node runs its own copy of the project locally. They all have to match.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>With Unreal closed, open <span class="ui">FreeFileSync</span>.</li>
+          <li>On the left-hand side, select the project folder you are copying from.</li>
+          <li>On the right-hand side, select where the copy should go on the target machine.</li>
+          <li>Click <span class="ui">Compare</span>, check the changes look right, then click <span
+              class="ui">Synchronise</span>.</li>
+          <li>Repeat for every node and editor machine you are using.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Close Unreal first</strong>
+          <p>Copying a project while the editor has it open gives you a half-written copy, and the node running it will
+            fail in ways that are hard to diagnose.</p>
+          <p>Any change you make after this sync has to be synced again before the nodes will see it.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="sync"> Every machine has the same project</label>
+      </section>
+
+      <!-- Part 12: Switchboard -->
+
+      <section class="part" id="switchboard">
+        <div class="part-head">
+          <div class="part-num">12</div>
+          <div>
+            <h2>Launch it with Switchboard</h2>
+            <p>Switchboard is the control panel that starts the project on every machine at once.</p>
+          </div>
+        </div>
+
+        <h3>Start the listeners</h3>
+        <ol class="steps">
+          <li>In Unreal, click the three dots next to the <span class="ui">Switchboard</span> icon and choose <span
+              class="ui">Launch Switchboard Listener</span>. A window opens.</li>
+          <li>On any other machine being used as an editor, open Switchboard Listener for your Unreal version from its
+            desktop shortcut.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Can't find the listener?</strong>
+          <p>Same as Part 3 — it lives on the desktop of FS_BB1 or make a new one following the guide.</p>
+        </div>
+
+        <h3>Create the Switchboard config</h3>
+        <ol class="steps">
+          <li>Back in Unreal, click the <span class="ui">Switchboard</span> icon again and choose <span
+              class="ui">Create Config</span>.</li>
+          <li>Under <span class="ui">General</span>, give the config a name.</li>
+          <li>Under <span class="ui">Devices</span>, select the nDisplay actor you created, then enter how many editors
+            you're using.</li>
+          <li>Under <span class="ui">Network</span>, untick <span class="ui">Use Localhost</span>. Leave auto-connect
+            ticked if you want it to find the listeners by itself.</li>
+          <li>Click <span class="ui">OK</span>. The Switchboard window opens.</li>
+        </ol>
+
+        <h3>Point each device at its Live Link preset</h3>
+        <ol class="steps">
+          <li>Open <span class="ui">Settings</span>, from the cog icon or the menu along the top.</li>
+          <li>Click <span class="ui">nDisplay</span> in the sidebar and scroll to your node names. For each one, set
+            <span class="ui">LiveLink Preset</span> to the preset you saved for that node in Part 9.</li>
+          <li>Click the <span class="ui">Unreal</span> tab and do the same for each editor — <code>BB1</code>,
+            <code>BB2</code>.</li>
+          <li>Close the settings window.</li>
+          <li>Connect every device using the plug icon.</li>
+        </ol>
+
+        <div class="note"><strong class="label">Renaming or re-addressing a device</strong>
+          <p>Disconnect all connected devices first, then click the name or IP address and type the new one. Editing
+            while connected doesn't take.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="switchboard"> Everything is connected</label>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="sitefoot">
+    <p><a class="backhome" href="../../"><span class="arrow">&larr;</span> Back to the VGAD Wiki</a></p>
+    <p><strong>Your ticks are saved in this browser only. They are to keep track while you work through.</strong></p>
+  </footer>
+
+  <script src="../../assets/wiki.js"></script>
+</body>
+
+</html>

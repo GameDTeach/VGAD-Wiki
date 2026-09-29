@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git Guide for Unreal · VGAD Wiki</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/wiki.css">
+</head>
+
+<body data-progress-key="git-unreal-guide-progress">
+
+  <div class="wikibar">
+    <div class="wikibar-inner">
+      <a class="home" href="../../"><span class="arrow">&larr;</span> VGAD Wiki</a>
+      <span class="crumb"><span class="sep">/</span> <span>Game</span> <span class="sep">/</span>
+        <span class="here">Git Guide for Unreal</span></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Git and GitHub for your Unreal project</h1>
+        <p class="lede">This term your Unreal project lives on GitHub instead of a network drive. This guide takes you
+          from no account at all to your first upload, one click at a time.</p>
+        <p>You don’t need any coding or Git experience. Set aside about an hour for the first time through, and tick
+          each part off as you finish it.</p>
+      </div>
+      <div class="graph" role="img"
+        aria-label="Diagram: on your computer you commit a save point, push it up to GitHub, and pull it down on another computer.">
+        <svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg"
+          font-family="Atkinson Hyperlegible, Segoe UI, sans-serif">
+          <defs>
+            <linearGradient id="wireg" x1="0" x2="1">
+              <stop offset="0" stop-color="#FFFFFF" stop-opacity=".9" />
+              <stop offset="1" stop-color="#FFFFFF" stop-opacity=".55" />
+            </linearGradient>
+          </defs>
+          <!-- wires -->
+          <path d="M168 88 C 196 88, 196 88, 222 88" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <path d="M340 88 C 370 88, 360 176, 392 176" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <!-- node 1 -->
+          <g>
+            <rect x="18" y="38" width="150" height="104" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M18 48 a10 10 0 0 1 10 -10 h130 a10 10 0 0 1 10 10 v18 h-150z" fill="#2F6FDE" />
+            <text x="32" y="59" fill="#fff" font-size="15" font-weight="700">Commit</text>
+            <polygon points="150,82 162,88 150,94" fill="#fff" />
+            <text x="32" y="96" fill="#C9D5EA" font-size="13">Save point on</text>
+            <text x="32" y="114" fill="#C9D5EA" font-size="13">your computer</text>
+          </g>
+          <!-- node 2 -->
+          <g>
+            <rect x="222" y="38" width="130" height="104" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M222 48 a10 10 0 0 1 10 -10 h110 a10 10 0 0 1 10 10 v18 h-130z" fill="#7B4FD6" />
+            <text x="236" y="59" fill="#fff" font-size="15" font-weight="700">Push</text>
+            <polygon points="228,82 240,88 228,94" fill="#fff" />
+            <polygon points="330,82 342,88 330,94" fill="#fff" />
+            <text x="236" y="106" fill="#C9D5EA" font-size="13">Upload to</text>
+            <text x="236" y="124" fill="#C9D5EA" font-size="13">GitHub</text>
+          </g>
+          <!-- node 3 -->
+          <g>
+            <rect x="392" y="126" width="150" height="104" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M392 136 a10 10 0 0 1 10 -10 h130 a10 10 0 0 1 10 10 v18 h-150z" fill="#1F9E6A" />
+            <text x="406" y="147" fill="#fff" font-size="15" font-weight="700">Pull</text>
+            <polygon points="398,170 410,176 398,182" fill="#fff" />
+            <text x="406" y="194" fill="#C9D5EA" font-size="13">Download on</text>
+            <text x="406" y="212" fill="#C9D5EA" font-size="13">any other computer</text>
+          </g>
+          <text x="18" y="208" fill="#8EA0BE" font-size="13">Think of it like a game with cloud saves.</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="toc" aria-label="Guide sections">
+      <h2>In this guide</h2>
+      <ol id="toc">
+        <li><a href="#words">The five words you need</a></li>
+        <li><a href="#account">Create a GitHub account</a></li>
+        <li><a href="#git">Install Git</a></li>
+        <li><a href="#desktop">Install GitHub Desktop</a></li>
+        <li><a href="#repo">Make your project repository</a></li>
+        <li><a href="#clone">Download repo to your computer</a></li>
+        <li><a href="#unreal">Put your Unreal project inside your repo</a></li>
+        <li><a href="#editor">Git and Unreal working together</a></li>
+        <li><a href="#first">Your first commit and push</a></li>
+        <li><a href="#routine">Your routine every lesson</a></li>
+        <li><a href="#demo">Get the lecturer’s demo project</a></li>
+        <li><a href="#help">If something goes wrong</a></li>
+      </ol>
+      <p class="toc-progress" id="progress" aria-live="polite"></p>
+      <button class="reset" id="reset" type="button">Clear my ticks</button>
+    </nav>
+
+    <main>
+
+      <!-- Part 1: The five words you need -->
+
+      <section class="part" id="words">
+        <div class="part-head">
+          <div class="part-num">1</div>
+          <div>
+            <h2>The five words you need</h2>
+            <p>Git has a lot of jargon. For this module you only need these.</p>
+          </div>
+        </div>
+        <p>Git keeps a history of your project, like save points in a game. GitHub is a website that stores that history
+          online, like cloud saves. GitHub Desktop is the app you’ll click buttons in, so you never have to type Git
+          commands.</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Word</th>
+                <th>What it means</th>
+                <th>Game equivalent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Repository</strong> (repo)</td>
+                <td>Your project folder, plus Git’s record of every save you’ve made in it.</td>
+                <td>Your save file slot</td>
+              </tr>
+              <tr>
+                <td><strong>Commit</strong></td>
+                <td>A snapshot of your project at one moment, with a short note describing what changed.</td>
+                <td>Making a save point</td>
+              </tr>
+              <tr>
+                <td><strong>Push</strong></td>
+                <td>Upload your new commits to GitHub.</td>
+                <td>Syncing to the cloud</td>
+              </tr>
+              <tr>
+                <td><strong>Pull</strong></td>
+                <td>Download commits from GitHub onto the computer you’re using.</td>
+                <td>Loading your cloud save on another console</td>
+              </tr>
+              <tr>
+                <td><strong>Clone</strong></td>
+                <td>Download a whole repository onto a computer for the first time.</td>
+                <td>Installing the game and your save on a new machine</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A commit only exists on the computer you made it on until you push it. If you commit but forget to push, your
+          work is not backed up.</p>
+        <label class="done-toggle"><input type="checkbox" data-part="words"> I’ve read this part</label>
+      </section>
+
+      <!-- Part 2: Create a GitHub account -->
+
+      <section class="part" id="account">
+        <div class="part-head">
+          <div class="part-num">2</div>
+          <div>
+            <h2>Create a GitHub account</h2>
+            <p>About 10 minutes. You’ll keep this account after you graduate, so treat it as your professional one.</p>
+          </div>
+        </div>
+        <ol class="steps">
+          <li>Go to <a href="https://github.com/signup">github.com/signup</a>.</li>
+          <li>Enter an email address. Use your <strong>rhul email address</strong>.</li>
+          <li>Create a strong password.</li>
+          <li>Choose a username. Future employers may see it, so something like <code>alex-morgan-games</code> is better
+            than <code>xXsniperXx</code>. Letters, numbers and single hyphens only.</li>
+          <li>Complete the puzzle check, then enter the code GitHub emails you.</li>
+          <li>If GitHub asks questions about how you’ll use it, you can skip them. Choose the <strong>Free</strong> plan
+            if asked.</li>
+        </ol>
+        <h3>Turn on two-factor authentication</h3>
+        <p>GitHub requires this for accounts that upload work, so do it now rather than being locked out mid-term.</p>
+        <ol class="steps">
+          <li>Install an authenticator app on your phone, such as Microsoft Authenticator or Google Authenticator.</li>
+          <li>On GitHub, click your profile picture (top right), then <span class="ui">Settings</span>, then <span
+              class="ui">Password and authentication</span>.</li>
+          <li>Click <span class="ui">Enable two-factor authentication</span> and scan the QR code with your
+            authenticator app.</li>
+          <li>GitHub shows you <strong>recovery codes</strong>. Download them and keep them somewhere safe that isn’t
+            your phone. If you lose your phone, these codes are the only way back into your account.</li>
+        </ol>
+        <h3>Keep your email address private</h3>
+        <p>Every commit records an email address, and that record is permanent. If you ever make a repository public, or
+          add someone to it, your real address travels with it. GitHub can give you a forwarding address to use instead.
+        </p>
+        <ol class="steps">
+          <li>Click your profile picture (top right), then <span class="ui">Settings</span>, then <span
+              class="ui">Emails</span>.</li>
+          <li>Tick <span class="ui">Keep my email addresses private</span>.</li>
+          <li>Tick <span class="ui">Block command line pushes that expose my email</span>.</li>
+          <li>GitHub shows you an address ending in <code>@users.noreply.github.com</code>. You don’t need to write it
+            down. GitHub Desktop picks it up on its own in Part 4.</li>
+        </ol>
+        <div class="note warn"><strong class="label">Do this before Part 4</strong>
+          <p>If you install GitHub Desktop first, it will already have stored your real address and you’ll have to
+            change it by hand.</p>
+        </div>
+        <div class="note"><strong class="label">Optional, but worth it!</strong> Apply for the free GitHub Student
+          Developer Pack at <a href="https://education.github.com/pack">education.github.com/pack</a>.
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="account"> My account is set up</label>
+      </section>
+
+      <!-- Part 3: Install Git -->
+
+      <section class="part" id="git">
+        <div class="part-head">
+          <div class="part-num">3</div>
+          <div>
+            <h2>Install Git</h2>
+            <p>About 5 minutes. The class computers already have this. Do it on your own computer.</p>
+          </div>
+        </div>
+        <h3>On Windows</h3>
+        <ol class="steps">
+          <li>Go to <a href="https://git-scm.com/downloads/win">git-scm.com/downloads/win</a> and download the 64-bit
+            installer (the top link).</li>
+          <li>Run the installer. It asks a lot of questions. <strong>Leave every option as it is and keep clicking <span
+                class="ui">Next</span></strong>, then <span class="ui">Install</span>.</li>
+          <li>When it finishes, untick “View Release Notes” and click <span class="ui">Finish</span>.</li>
+        </ol>
+        <p>This also installs <strong>Git LFS</strong> (Large File Storage). Unreal files like <code>.uasset</code> and
+          <code>.umap</code> are big, and Git LFS is what lets GitHub store them properly. You need to switch it on
+          once:</p>
+        <ol class="steps">
+          <li>Open the Start menu, type <strong>Git Bash</strong> and open it. A black window appears.</li>
+          <li>Type <code>git lfs install</code> and press <kbd>Enter</kbd>.</li>
+          <li>Close the window.</li>
+        </ol>
+        <div class="note check"><strong class="label">Check it worked</strong>
+          <p>The window should reply with <strong>Git LFS initialized.</strong> If it says “command not found”, restart
+            your computer and try again.</p>
+        </div>
+
+        <h3>On a Mac</h3>
+        <ol class="steps">
+          <li>Open <span class="ui">Terminal</span> (press <kbd>Cmd</kbd> + <kbd>Space</kbd> and type Terminal).</li>
+          <li>Type <code>git --version</code> and press <kbd>Enter</kbd>. If Git isn’t installed, your Mac offers to
+            install the “command line developer tools”. Click <span class="ui">Install</span> and wait.</li>
+          <li>GitHub Desktop (next part) includes Git LFS, so you don’t need anything else for this module.</li>
+        </ol>
+        <label class="done-toggle"><input type="checkbox" data-part="git"> Git is installed</label>
+      </section>
+
+      <!-- Part 4: Install GitHub Desktop -->
+
+      <section class="part" id="desktop">
+        <div class="part-head">
+          <div class="part-num">4</div>
+          <div>
+            <h2>Install GitHub Desktop</h2>
+            <p>About 5 minutes. This is the app you’ll use every lesson.</p>
+          </div>
+        </div>
+        <ol class="steps">
+          <li>Go to <a href="https://desktop.github.com">desktop.github.com</a>, download it and run the installer. It
+            opens by itself when done.</li>
+          <li>Click <span class="ui">Sign in to GitHub.com</span>. Your web browser opens. Sign in, then click <span
+              class="ui">Authorize desktop</span> and allow the browser to open GitHub Desktop.</li>
+          <li>On the <span class="ui">Configure Git</span> screen, check the <span class="ui">Email</span> box shows an
+            address ending in <code>@users.noreply.github.com</code>. If it shows your real address instead, go back and
+            do the email privacy step in Part 2, then sign out and in again. Click <span class="ui">Finish</span>.</li>
+        </ol>
+        <div class="note"><strong class="label">On a class computer</strong>
+          <p>Sign out when you leave: <span class="ui">File</span> → <span class="ui">Options</span> → <span
+              class="ui">Accounts</span> → <span class="ui">Sign out</span>. Otherwise the next person could push to
+            your account.</p>
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="desktop"> GitHub Desktop is signed in</label>
+      </section>
+
+      <!-- Part 5: Make your project repository -->
+
+      <section class="part" id="repo">
+        <div class="part-head">
+          <div class="part-num">5</div>
+          <div>
+            <h2>Make your project repository</h2>
+            <p>About 5 minutes. Your lecturer has made a starter repository with the right settings for Unreal already
+              in it. You’ll make your own copy.</p>
+          </div>
+        </div>
+        <ol class="steps">
+          <li>Open the starter repository: <a href="https://github.com/GameDTeach/UnrealTemplateRepo">Unreal Template
+              Repository</a>.</li>
+          <li>Click the green <span class="ui">Use this template</span> button, then <span class="ui">Create a new
+              repository</span>.</li>
+          <li>Make sure <span class="ui">Owner</span> is your username.</li>
+          <li>For <span class="ui">Repository name</span>, use <strong>GameBuild2D_yourfullname</strong>. No spaces.
+          </li>
+          <li>Choose <strong>Private</strong>.</li>
+          <li>Click <span class="ui">Create repository</span>.</li>
+        </ol>
+        <div class="note"><strong class="label">If GitHub ever emails you about storage</strong>
+          <p>Forward it to <span class="ph">vgadlecturers@rhul.ac.uk</span> straight away. It means something larger
+            than expected has gone into your project, and it is far easier to deal with in the week it happens than at
+            the end of term.</p>
+        </div>
+        <h3>Give your lecturer access</h3>
+        <ol class="steps">
+          <li>On your new repository’s page, click <span class="ui">Settings</span> (the tab along the top), then <span
+              class="ui">Collaborators</span>.</li>
+          <li>Click <span class="ui">Add people</span> and enter <strong>GameDTeach</strong>.</li>
+        </ol>
+        <div class="note check"><strong class="label">Check it worked</strong>
+          <p>Your repository page should list two files: <code>.gitignore</code> and <code>.gitattributes</code>. These
+            tell Git which Unreal folders to skip and which files are large. Don’t delete or edit them.</p>
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="repo"> My repository exists on GitHub</label>
+      </section>
+
+      <!-- Part 6: Download repo to your computer -->
+
+      <section class="part" id="clone">
+        <div class="part-head">
+          <div class="part-num">6</div>
+          <div>
+            <h2>Download repo to your computer</h2>
+            <p>About 2 minutes. This is called cloning.</p>
+          </div>
+        </div>
+        <div class="note warn"><strong class="label">Where to put it matters</strong>
+          <p>Create a folder called <span class="path">C:\UnrealProjects</span> (on a Mac, a folder called <span
+              class="path">UnrealProjects</span> in your home folder) and keep all your projects there.</p>
+          <p>Do <strong>not</strong> use EditShare or your Desktop, Documents, OneDrive, iCloud or any network drives.
+            Cloud-syncing folders fight with Git and Unreal, and projects get corrupted.</p>
+        </div>
+        <ol class="steps">
+          <li>In GitHub Desktop, click <span class="ui">File</span> → <span class="ui">Clone repository</span>.</li>
+          <li>On the <span class="ui">GitHub.com</span> tab, click your new repository in the list.</li>
+          <li>Next to <span class="ui">Local path</span>, click <span class="ui">Choose…</span> and pick your <span
+              class="path">UnrealProjects</span> folder. GitHub Desktop adds the repository name on the end for you.
+          </li>
+          <li>Click <span class="ui">Clone</span>.</li>
+          <li>If GitHub Desktop asks to <span class="ui">Initialize Git LFS</span>, click <span class="ui">Initialize
+              Git LFS</span>.</li>
+        </ol>
+        <div class="note check"><strong class="label">Check it worked</strong>
+          <p>Click <span class="ui">Repository</span> → <span class="ui">Show in Explorer</span> (<span class="ui">Show
+              in Finder</span> on a Mac). You should see a folder containing <code>.gitignore</code> and
+            <code>.gitattributes</code>. On a Mac these are hidden; press <kbd>Cmd</kbd> + <kbd>Shift</kbd> +
+            <kbd>.</kbd> to show them.</p>
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="clone"> The repository is on my computer</label>
+      </section>
+
+      <!-- Part 7: Put your Unreal project inside your repo -->
+
+      <section class="part" id="unreal">
+        <div class="part-head">
+          <div class="part-num">7</div>
+          <div>
+            <h2>Put your Unreal project inside your repo</h2>
+            <p>About 10 minutes. You’ll make a normal Unreal project, then move it into your repository folder.</p>
+          </div>
+        </div>
+        <h3>Make the project</h3>
+        <ol class="steps">
+          <li>Open <strong> Unreal Engine 5.7 </strong> from the <strong>Epic Games Launcher.</strong></li>
+          <li>Choose <strong>New Project → Games → Blank.</strong></li>
+          <li>Under <strong>Project Defaults </strong> choose <strong> BLUEPRINT </strong> - leave the other two options
+            as default.</li>
+          <li>Set <span class="ui">Project Location</span> to a temporary place, such as Documents or Desktop.</li>
+          <li>Give your project a short name with no spaces, such as <code>GameBuild2D</code>, and click <span
+              class="ui">Create</span>.</li>
+          <li>When the editor has fully opened, close Unreal.</li>
+        </ol>
+        <h3>Move it into your repository</h3>
+        <ol class="steps">
+          <li>Open the project folder Unreal just made in your Documents or Desktop. You’ll see folders like
+            <code>Config</code> and <code>Content</code>, and a file ending in <code>.uproject</code>.</li>
+          <li>Select everything inside it (<kbd>Ctrl</kbd> + <kbd>A</kbd>, or <kbd>Cmd</kbd> + <kbd>A</kbd> on a Mac)
+            and copy it (<kbd>Ctrl</kbd> + <kbd>C</kbd>, or <kbd>Cmd</kbd> + <kbd>C</kbd> on a Mac).</li>
+          <li>Open your repository folder in <span class="path">UnrealProjects</span> and paste (<kbd>Ctrl</kbd> +
+            <kbd>V</kbd>, or <kbd>Cmd</kbd> + <kbd>V</kbd> on a Mac).</li>
+        </ol>
+        <p>Your repository folder should now look like this. The <code>.uproject</code> file must sit right next to
+          <code>.gitignore</code>, not inside another folder.</p>
+        <pre class="tree" aria-label="Correct folder layout">UnrealProjects/
+└── GameBuild2D_JohnRomero/        <span class="ok">← your repository folder</span>
+    ├── .gitattributes
+    ├── .gitignore
+    ├── Config/
+    ├── Content/
+    ├── DerivedDataCache/          <span class="ign">(skipped by Git, that’s fine)</span>
+    ├── Intermediate/              <span class="ign">(skipped by Git, that’s fine)</span>
+    ├── Saved/                     <span class="ign">(skipped by Git, that’s fine)</span>
+    └── GameBuild2D.uproject        <span class="ok">← right here, next to .gitignore</span></pre>
+        <div class="note warn"><strong class="label">Common mistake</strong>
+          <p>If you dragged the whole project folder in, you’ll have <span
+              class="path">GameBuild2D_JohnRomero/GameBuild2D/GameBuild2D.uproject</span>. Open that inner folder, move
+            everything up one level, and delete the empty folder.</p>
+        </div>
+        <ol class="steps" start="4">
+          <li>Double-click the <code>.uproject</code> file in your repository folder to check the project opens.</li>
+          <li>Leave the Desktop copy for now. You’ll delete it once your first push has worked in Part 9.</li>
+        </ol>
+        <label class="done-toggle"><input type="checkbox" data-part="unreal"> My project is inside the repository
+          folder</label>
+      </section>
+
+      <!-- Part 8: Git and Unreal working together -->
+
+      <section class="part" id="editor">
+        <div class="part-head">
+          <div class="part-num">8</div>
+          <div>
+            <h2>Git and Unreal working together</h2>
+            <p>A few habits and one optional setting.</p>
+          </div>
+        </div>
+        <h3>Always open the right copy</h3>
+        <p>Unreal’s project browser remembers the Desktop copy too. From now on, open your project by double-clicking
+          the <code>.uproject</code> in your repository folder. After your first push, delete the Desktop copy so you
+          can’t open the wrong one by accident.</p>
+        <h3>Save before you commit, close before you pull</h3>
+        <p>Git can only save what Unreal has written to disk. Before committing, use <span class="ui">File</span> →
+          <span class="ui">Save All</span> (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>). Before pulling changes
+          down, close Unreal completely, because the editor holds files open and gets confused when they change
+          underneath it.</p>
+        <details>
+          <summary>Optional: show Git status icons inside Unreal</summary>
+          <p>Only do this if your lecturer asks you to. It adds small icons to assets in the Content Browser so you can
+            see what has changed since your last commit.</p>
+          <ol class="steps">
+            <li>With your project open, click <span class="ui">Revision Control</span> in the bottom-right corner of the
+              editor, then <span class="ui">Connect to Revision Control…</span></li>
+            <li>Set <span class="ui">Provider</span> to <span class="ui">Git</span>.</li>
+            <li>Check the Git path is filled in (on Windows it’s usually <span class="path">C:/Program
+                Files/Git/bin/git.exe</span>) and that it has found your repository.</li>
+            <li>Click <span class="ui">Accept Settings</span>.</li>
+          </ol>
+          <p>Even with this turned on, <strong>do your commits and pushes in GitHub Desktop</strong>, not with Unreal’s
+            Submit button, so there’s only one way of doing things.</p>
+        </details>
+        <p>Now close Unreal</p>
+        <label class="done-toggle"><input type="checkbox" data-part="editor"> I know the Unreal habits</label>
+      </section>
+
+      <!-- Part 9: Your first commit and push -->
+
+      <section class="part" id="first">
+        <div class="part-head">
+          <div class="part-num">9</div>
+          <div>
+            <h2>Your first commit and push</h2>
+            <p>About 5 minutes, depending on your internet speed.</p>
+          </div>
+        </div>
+        <ol class="steps">
+          <li>Make sure Unreal is closed.</li>
+          <li>In <strong>GitHub Desktop</strong>, check the <span class="ui">Current repository</span> box at the top
+            left shows your repository.</li>
+          <li>The <span class="ui">Changes</span> tab on the left lists every new file. Scroll through it and check
+            what’s there (see below).</li>
+          <li>At the bottom left, type a short message in the <span class="ui">Summary</span> box:
+            <code>Initial Unreal project</code>.</li>
+          <li>Click <span class="ui">Commit to main</span>. You’ve made your first save point.</li>
+          <li>Click <span class="ui">Push origin</span> at the top. This uploads it. It may take a few minutes the first
+            time.</li>
+          <li>Click the <span class="ui">History</span> tab on the left. Your commit is listed with a name against it.
+            Check that name is yours — on a shared computer it can be left over from whoever used it last.</li>
+        </ol>
+        <div class="note warn"><strong class="label">Before you click Commit, check the list</strong>
+          <p>You <strong>should</strong> see files starting with <code>Config/</code>, <code>Content/</code> and your
+            <code>.uproject</code>.</p>
+          <p>You should <strong>not</strong> see anything starting with <code>Saved/</code>, <code>Intermediate/</code>
+            or <code>DerivedDataCache/</code>. If you do, your project isn’t sitting next to <code>.gitignore</code>. Go
+            back to Part 7 and fix the folder layout before committing.</p>
+        </div>
+        <div class="note check"><strong class="label">Check it worked</strong>
+          <p>Open your repository on github.com and refresh the page. You should see your <code>Config</code> and
+            <code>Content</code> folders.</p>
+          <p>Click into <code>Content</code> and open any <code>.uasset</code> file. GitHub should say <strong>Stored
+              with Git LFS</strong>. If it does, everything is set up correctly and you can delete the Desktop copy of
+            your project.</p>
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="first"> My project is on GitHub</label>
+      </section>
+
+      <!-- Part 10: Your routine every lesson -->
+
+      <section class="part" id="routine">
+        <div class="part-head">
+          <div class="part-num">10</div>
+          <div>
+            <h2>Your routine every lesson</h2>
+            <p>This is what replaces copying your project to the network drive.</p>
+          </div>
+        </div>
+        <div class="routine">
+          <div>
+            <h4>At the start</h4>
+            <ol>
+              <li>Open GitHub Desktop and pick your repository.</li>
+              <li>Click <span class="ui">Fetch origin</span>.</li>
+              <li>If the button changes to <span class="ui">Pull origin</span>, click it.</li>
+              <li>Now open your project in Unreal.</li>
+            </ol>
+          </div>
+          <div class="end">
+            <h4>At the end</h4>
+            <ol>
+              <li>In Unreal, <span class="ui">File</span> → <span class="ui">Save All</span>, then close Unreal.</li>
+              <li>In GitHub Desktop, write a summary and click <span class="ui">Commit to main</span>.</li>
+              <li>Click <span class="ui">Push origin</span> and wait until it finishes.</li>
+              <li>On a class computer, sign out of GitHub Desktop.</li>
+            </ol>
+          </div>
+        </div>
+        <p>Pull before you start and push before you leave, and your project is the same wherever you pick it up. If you
+          forget to pull, you’ll be working on an old version.</p>
+        <h3>First time on a new computer</h3>
+        <p>If a computer doesn’t have your project yet (your laptop at home, or a different class machine), repeat Part
+          6 to clone it. You don’t need to redo anything else.</p>
+        <h3>Commit more often than once a lesson</h3>
+        <p>Commit whenever you finish something that works, like a save point before a boss fight. If you break
+          something later, you can go back. A good summary says what you did:</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Helpful</th>
+                <th>Unhelpful</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Door opens when ball reaches switch</td>
+                <td>stuff</td>
+              </tr>
+              <tr>
+                <td>Blockout for room 2</td>
+                <td>update</td>
+              </tr>
+              <tr>
+                <td>Imported funnel mesh and materials</td>
+                <td>asdfgh</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Source art is different</h3>
+        <p>If you keep exported models, textures or audio in the project, commit them when a piece is finished rather
+          than at every save. Git stores a complete new copy of a large file each time it changes, not just the part
+          that changed, so ten saved versions of one model take ten times the room against your account’s allowance.</p>
+        <label class="done-toggle"><input type="checkbox" data-part="routine"> I know my routine</label>
+      </section>
+
+      <!-- Part 11: Get the lecturer’s demo project -->
+
+      <section class="part" id="demo">
+        <div class="part-head">
+          <div class="part-num">11</div>
+          <div>
+            <h2>Get the lecturer’s demo project</h2>
+            <p>Your lecturer’s example project is also on GitHub, and gets updated as the term goes on.</p>
+          </div>
+        </div>
+        <h3>The first time</h3>
+        <ol class="steps">
+          <li>Open <a href="https://github.com/GameDTeach/GameBuild2D_LecturerDemo">Unreal Project Demo Repository</a>.
+            <em>note: you must log into github for this to work.</em></li>
+          <li>Click the green <span class="ui">Code</span> button, then <span class="ui">Open with GitHub
+              Desktop</span>.</li>
+          <li>Set the local path to your <span class="path">UnrealProjects</span> folder and click <span
+              class="ui">Clone</span>.</li>
+        </ol>
+        <p>It sits next to your own project, as a separate folder. Never put it inside your project folder.</p>
+        <pre class="tree" aria-label="Demo project sits beside your own project">UnrealProjects/
+├── GameBuild2D_JohnRomero/         <span class="ok">← your work (you push to this)</span>
+└── GameBuild2D_LecturerDemo/       <span class="ok">← lecturer’s demo (you only pull this)</span></pre>
+        <h3>Getting each week’s update</h3>
+        <ol class="steps">
+          <li>Close the demo project in Unreal if it’s open.</li>
+          <li>In GitHub Desktop, change <span class="ui">Current repository</span> to the demo.</li>
+          <li>Click <span class="ui">Fetch origin</span>, then <span class="ui">Pull origin</span>.</li>
+        </ol>
+        <div class="note warn"><strong class="label">Look, don’t edit</strong>
+          <p>Treat the demo as read-only. You can’t push to it, and any changes you make will get in the way when you
+            pull the next update.</p>
+          <p>If you experimented in it anyway, right-click the changed files in the <span class="ui">Changes</span> tab
+            and choose <span class="ui">Discard changes</span> before pulling.</p>
+          <p>To use something from the demo in your own game, right-click the asset in Unreal’s Content Browser, choose
+            <span class="ui">Asset Actions</span> → <span class="ui">Migrate</span>, and pick your own project’s
+            <code>Content</code> folder.</p>
+        </div>
+        <label class="done-toggle"><input type="checkbox" data-part="demo"> I have the demo project</label>
+      </section>
+
+      <!-- Part 12: If something goes wrong -->
+
+      <section class="part" id="help">
+        <div class="part-head">
+          <div class="part-num">12</div>
+          <div>
+            <h2>If something goes wrong</h2>
+            <p>Click a problem to see the fix. If none of these match, take a screenshot and ask in class before trying
+              anything drastic.</p>
+          </div>
+        </div>
+
+        <details>
+          <summary>Push fails with “Updates were rejected” or “newer commits on remote”</summary>
+          <p>GitHub has commits this computer doesn’t, usually because you worked somewhere else and forgot to pull here
+            first. Close Unreal, click <span class="ui">Pull origin</span>, then <span class="ui">Push origin</span>
+            again.</p>
+        </details>
+
+        <details>
+          <summary>A file “exceeds GitHub’s file size limit of 100 MB”</summary>
+          <p>Something big isn’t covered by Git LFS, often a video, a large audio file or a Maya scene. Don’t keep
+            trying to push.</p>
+          <p>If you haven’t pushed yet, open the <span class="ui">History</span> tab, right-click your latest commit and
+            choose <span class="ui">Undo commit</span>. Move the large file out of your repository folder, then commit
+            again. Ask your lecturer if you need that file in the project.</p>
+        </details>
+
+        <details>
+          <summary>Saved, Intermediate or DerivedDataCache folders appear in the Changes list</summary>
+          <p>Your <code>.uproject</code> isn’t in the same folder as <code>.gitignore</code>. Don’t commit. Fix the
+            layout as shown in Part 7.</p>
+        </details>
+
+        <details>
+          <summary>After cloning, Unreal says assets are missing or can’t be loaded</summary>
+          <p>Git LFS wasn’t switched on when you cloned, so you only downloaded tiny placeholder files. In GitHub
+            Desktop choose <span class="ui">Repository</span> → <span class="ui">Open in Git Bash</span> (or <span
+              class="ui">Open in Terminal</span> on a Mac), type <code>git lfs pull</code> and press <kbd>Enter</kbd>.
+            When it finishes, open the project again.</p>
+        </details>
+
+        <details>
+          <summary>A warning about LF and CRLF</summary>
+          <p>You may see <em>“LF will be replaced by CRLF the next time Git touches it”</em>. This is a notice, not an
+            error. Windows and Macs mark the end of a line of text differently, and Git is telling you it is handling
+            the difference for you. Nothing is broken and nothing is lost. Carry on.</p>
+        </details>
+
+        <details>
+          <summary>My commits show someone else’s name</summary>
+          <p>Someone who used this computer before you left their details in Git’s settings. To fix it for this project,
+            click <span class="ui">Repository</span> → <span class="ui">Repository settings</span> → <span
+              class="ui">Git config</span>, choose <span class="ui">Use a local Git config</span>, and enter your own
+            name along with the <code>@users.noreply.github.com</code> address from Part 2.</p>
+          <p>Commits you already made keep the wrong name. If that’s only one or two, tell your lecturer rather than
+            trying to rewrite them yourself.</p>
+        </details>
+
+        <details>
+          <summary>I want to undo changes I haven’t committed yet</summary>
+          <p>Close Unreal. In the <span class="ui">Changes</span> tab, right-click the files you want to put back and
+            choose <span class="ui">Discard changes</span>. They return to how they were at your last commit. This can’t
+            be undone, so be sure.</p>
+        </details>
+
+        <details>
+          <summary>GitHub emails me about storage or bandwidth</summary>
+          <p>Your account includes 10 GB of large-file storage and 10 GB of downloads a month, which is far more than
+            this module needs. An email means something unexpectedly large has gone in — usually Starter Content, a
+            video, or high-detail source art.</p>
+          <p><strong>Forward that email to <span class="ph">vgadlecturers@rhul.ac.uk</span> rather than ignoring
+              it.</strong> Caught early it is quick to sort out. Left alone, the large file becomes a permanent part of
+            your project’s history and is much harder to remove.</p>
+        </details>
+
+        <details>
+          <summary>I can’t see .gitignore or .gitattributes on my Mac</summary>
+          <p>Files starting with a dot are hidden in Finder. Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>.</kbd> to
+            show them, and press it again to hide them.</p>
+        </details>
+        <label class="done-toggle"><input type="checkbox" data-part="help"> I know where to look for help</label>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="sitefoot">
+    <p><a class="backhome" href="../../"><span class="arrow">&larr;</span> Back to the VGAD Wiki</a></p>
+    <p><strong>Your ticks are saved in this browser only. They are to keep track while you work through.</strong></p>
+  </footer>
+
+  <script src="../../assets/wiki.js"></script>
+</body>
+
+</html>

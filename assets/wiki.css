@@ -1,0 +1,508 @@
+/* ==========================================================================
+   VGAD Wiki - shared stylesheet
+   Every page in the wiki links to this file. Change a value here and it
+   changes everywhere. Colours are defined once as custom properties on
+   :root, then redefined for dark mode.
+   ========================================================================== */
+
+:root {
+  --paper: #EEF2F7;
+  --surface: #FFFFFF;
+  --ink: #152238;
+  --muted: #4D5B72;
+  --rule: #CBD4E1;
+  --wire: #2F6FDE;
+  --wire-soft: #DCE7FB;
+  --amber: #B86E00;
+  --amber-soft: #FFF1D6;
+  --green: #1F7A4D;
+  --green-soft: #DDF3E7;
+  --node: #1C2B45;
+  --node-head-a: #2F6FDE;
+  --node-head-b: #7B4FD6;
+  --node-head-c: #1F9E6A;
+  --placeholder: #FFE58A;
+  --placeholder-ink: #5A4300;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", Verdana, system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F1726;
+    --surface: #172238;
+    --ink: #E6ECF5;
+    --muted: #A5B2C6;
+    --rule: #2B3A55;
+    --wire: #7BA6F5;
+    --wire-soft: #1E3157;
+    --amber: #F2B75A;
+    --amber-soft: #3A2C12;
+    --green: #6FD19E;
+    --green-soft: #153426;
+    --node: #0B1220;
+    --placeholder: #6B5200;
+    --placeholder-ink: #FFE9A8;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0F1726;
+  --surface: #172238;
+  --ink: #E6ECF5;
+  --muted: #A5B2C6;
+  --rule: #2B3A55;
+  --wire: #7BA6F5;
+  --wire-soft: #1E3157;
+  --amber: #F2B75A;
+  --amber-soft: #3A2C12;
+  --green: #6FD19E;
+  --green-soft: #153426;
+  --node: #0B1220;
+  --placeholder: #6B5200;
+  --placeholder-ink: #FFE9A8;
+}
+
+* { box-sizing: border-box }
+html { scroll-behavior: smooth }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+img, svg { max-width: 100% }
+a { color: var(--wire) }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--wire);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+code, .path {
+  font-family: var(--mono);
+  font-size: .88em;
+  background: var(--wire-soft);
+  padding: .08em .38em;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+kbd {
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: .9em;
+  border: 1px solid var(--rule);
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  padding: .05em .45em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.ui { font-weight: 700 }
+
+.ph {
+  background: var(--placeholder);
+  color: var(--placeholder-ink);
+  padding: .05em .4em;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Wiki chrome - the bar that sits above every guide
+   ========================================================================== */
+
+.wikibar {
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.wikibar-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: .7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  font-size: .92rem;
+}
+
+.wikibar a.home {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: var(--display);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ink);
+  padding: .25rem .6rem .25rem .4rem;
+  border-radius: 7px;
+}
+
+.wikibar a.home:hover { background: var(--wire-soft) }
+.wikibar a.home .arrow { color: var(--wire); font-weight: 800 }
+
+.crumb { color: var(--muted); display: flex; gap: .6rem; align-items: center }
+.crumb .sep { opacity: .55 }
+.crumb .here { color: var(--ink); font-weight: 700 }
+
+/* Return button at the foot of a guide */
+.backhome {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 .4rem;
+  padding: .65rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.backhome:hover { background: var(--wire-soft); border-color: var(--wire) }
+.backhome .arrow { color: var(--wire); font-weight: 800 }
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  padding: 3.5rem 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width:900px) {
+  .hero-inner { grid-template-columns: 1.05fr 1fr }
+  .hero-inner.single { grid-template-columns: 1fr }
+}
+
+.hero h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  margin: 0 0 1rem;
+}
+
+.hero p { margin: 0 0 .8rem; max-width: 36rem; color: var(--muted); font-size: 1.15rem }
+.hero .lede { color: var(--ink) }
+
+.graph { background: var(--node); border-radius: 14px; padding: 1rem; overflow-x: auto }
+.graph svg { display: block; min-width: 480px; width: 100%; height: auto }
+
+/* ==========================================================================
+   Landing page - categories and guide cards
+   ========================================================================== */
+
+.catwrap { max-width: 1080px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem }
+
+.cat { margin: 0 0 3rem }
+
+.cat-head {
+  display: flex;
+  align-items: baseline;
+  gap: .9rem;
+  padding-bottom: .55rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.cat-head h2 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  margin: 0;
+  letter-spacing: -.01em;
+}
+
+.cat-head .count { color: var(--muted); font-size: .9rem }
+
+.cards { display: grid; grid-template-columns: 1fr; gap: 1rem }
+@media (min-width:700px) { .cards { grid-template-columns: 1fr 1fr } }
+
+.card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 5px solid var(--wire);
+  border-radius: 10px;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.card:hover { border-color: var(--wire); background: var(--wire-soft) }
+.card.vp { border-left-color: var(--node-head-b) }
+.card.vp:hover { border-color: var(--node-head-b) }
+
+.card h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 .35rem;
+}
+
+.card p { margin: 0 0 .6rem; color: var(--muted); font-size: .96rem }
+
+.card .meta {
+  font-size: .85rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.empty {
+  border: 1px dashed var(--rule);
+  border-radius: 10px;
+  padding: 1.1rem 1.2rem;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Guide layout
+   ========================================================================== */
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width:900px) { .wrap { grid-template-columns: 230px 1fr } }
+
+nav.toc { font-size: .95rem }
+
+@media (min-width:900px) {
+  nav.toc {
+    position: sticky;
+    top: 1.25rem;
+    align-self: start;
+    max-height: calc(100vh - 2.5rem);
+    overflow: auto;
+  }
+}
+
+nav.toc h2 { font-family: var(--display); font-size: 1rem; margin: 0 0 .6rem }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc }
+nav.toc li { counter-increment: toc; margin: 0 }
+
+nav.toc a {
+  display: flex;
+  gap: .6rem;
+  align-items: baseline;
+  padding: .35rem .5rem;
+  border-radius: 6px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+nav.toc a::before {
+  content: counter(toc);
+  font-family: var(--display);
+  font-weight: 800;
+  color: var(--wire);
+  min-width: 1.1rem;
+}
+
+nav.toc a:hover { background: var(--wire-soft) }
+nav.toc a.done { color: var(--muted) }
+nav.toc a.done::after { content: "✓"; margin-left: auto; color: var(--green); font-weight: 700 }
+
+.toc-progress { margin: .9rem .5rem 0; font-size: .85rem; color: var(--muted) }
+
+.reset {
+  margin: .4rem .5rem 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--wire);
+  font: inherit;
+  font-size: .85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+main { min-width: 0; max-width: 46rem }
+
+section.part { margin: 0 0 3.5rem; scroll-margin-top: 1rem }
+
+.part-head { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem }
+
+.part-num {
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--wire);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  display: grid;
+  place-items: center;
+  margin-top: .15rem;
+}
+
+.part-head h2 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.part-head p { margin: .35rem 0 0; color: var(--muted) }
+
+h3 { font-family: var(--display); font-weight: 600; font-size: 1.2rem; margin: 2rem 0 .5rem }
+
+ol.steps { padding-left: 1.4rem; margin: .5rem 0 1rem }
+ol.steps>li { margin: .55rem 0; padding-left: .3rem }
+ol.steps>li::marker { font-weight: 700; color: var(--wire) }
+
+ul { padding-left: 1.3rem }
+
+/* ==========================================================================
+   Content blocks
+   ========================================================================== */
+
+.note {
+  border-left: 5px solid var(--wire);
+  background: var(--wire-soft);
+  padding: .85rem 1rem;
+  border-radius: 0 10px 10px 0;
+  margin: 1.2rem 0;
+}
+
+.note.warn { border-color: var(--amber); background: var(--amber-soft) }
+.note.check { border-color: var(--green); background: var(--green-soft) }
+
+.note strong.label {
+  display: block;
+  font-family: var(--display);
+  font-weight: 600;
+  margin-bottom: .15rem;
+}
+
+.note p { margin: .25rem 0 }
+
+pre.tree {
+  font-family: var(--mono);
+  font-size: .88rem;
+  line-height: 1.55;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.tree .ok { color: var(--green) }
+.tree .ign { color: var(--muted) }
+
+.table-scroll { overflow-x: auto; margin: 1rem 0 }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 30rem;
+  background: var(--surface);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: .6rem .8rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+th { font-family: var(--display); font-weight: 600; background: var(--wire-soft) }
+tr:last-child td { border-bottom: 0 }
+
+td.ip { font-family: var(--mono); white-space: nowrap }
+
+.done-toggle {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  margin-top: 1.4rem;
+  padding: .7rem .9rem;
+  border: 1px dashed var(--rule);
+  border-radius: 10px;
+  cursor: pointer;
+  width: fit-content;
+  font-weight: 700;
+}
+
+.done-toggle input { width: 1.2rem; height: 1.2rem; accent-color: var(--green) }
+
+details {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  margin: .7rem 0;
+  padding: 0 1rem;
+}
+
+summary { cursor: pointer; font-weight: 700; padding: .8rem 0 }
+details[open] summary { border-bottom: 1px solid var(--rule); margin-bottom: .6rem }
+details>*:last-child { margin-bottom: .9rem }
+
+.routine { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1rem 0 }
+@media (min-width:640px) { .routine { grid-template-columns: 1fr 1fr } }
+
+.routine div {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 5px solid var(--wire);
+  border-radius: 8px;
+  padding: .9rem 1rem;
+}
+
+.routine div.end { border-top-color: var(--green) }
+.routine h4 { font-family: var(--display); font-weight: 600; margin: 0 0 .4rem; font-size: 1.05rem }
+.routine ol { margin: 0; padding-left: 1.2rem }
+
+footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+footer.sitefoot {
+  border-top: 1px solid var(--rule);
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
