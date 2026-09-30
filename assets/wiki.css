@@ -243,8 +243,14 @@ kbd {
 
 .cat-head .count { color: var(--muted); font-size: .9rem }
 
-.cards { display: grid; grid-template-columns: 1fr; gap: 1rem }
-@media (min-width:700px) { .cards { grid-template-columns: 1fr 1fr } }
+/* Entries run left to right and wrap at the window edge. As many columns as
+   fit at 17rem or wider; one column on a phone. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
 
 .card {
   display: block;
@@ -260,6 +266,22 @@ kbd {
 .card:hover { border-color: var(--wire); background: var(--wire-soft) }
 .card.vp { border-left-color: var(--node-head-b) }
 .card.vp:hover { border-color: var(--node-head-b) }
+
+/* Small badge saying what kind of page the card leads to */
+.kind {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .7rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  padding: .12rem .45rem;
+  border-radius: 4px;
+  background: var(--wire-soft);
+  color: var(--wire);
+  margin-bottom: .5rem;
+}
+
+.kind.ref { background: var(--amber-soft); color: var(--amber) }
 
 .card h3 {
   font-family: var(--display);
@@ -282,6 +304,43 @@ kbd {
   padding: 1.1rem 1.2rem;
   color: var(--muted);
 }
+
+/* ==========================================================================
+   Info sheet layout - reference pages, no sidebar, no step numbering
+   ========================================================================== */
+
+.sheetwrap { max-width: 56rem; margin: 0 auto; padding: 2.2rem 1.25rem 4rem }
+
+.sheet-sec { margin: 0 0 2.6rem; scroll-margin-top: 1rem }
+
+.sheet-sec > h2 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  margin: 0 0 .9rem;
+  padding-bottom: .45rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.sheet-sec > h2 + p { margin-top: 0 }
+
+.speclist { list-style: none; margin: 1rem 0; padding: 0; display: grid; gap: .5rem }
+
+.speclist li {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--wire);
+  border-radius: 8px;
+  padding: .65rem .9rem;
+}
+
+.speclist .k { font-weight: 700; min-width: 11rem; flex: none }
+.speclist .v { color: var(--muted) }
+.speclist .v strong { color: var(--ink); font-family: var(--mono); font-weight: 500 }
 
 /* ==========================================================================
    Guide layout

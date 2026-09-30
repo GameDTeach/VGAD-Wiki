@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Futures Studio Hardware Specs · VGAD Wiki</title>
+  <meta name="description" content="The LED wall and hardware in Futures Studio: dimensions, panels, processors and resolution.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/wiki.css">
+</head>
+
+<body>
+
+  <div class="wikibar">
+    <div class="wikibar-inner">
+      <a class="home" href="../../"><span class="arrow">&larr;</span> VGAD Wiki</a>
+      <span class="crumb"><span class="sep">/</span> <span>Virtual Production</span> <span class="sep">/</span>
+        <span class="here">Futures Studio Hardware Specs</span></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Futures Studio Hardware Specs</h1>
+        <p class="lede">What the LED wall is made of, how big it is, and what drives it.</p>
+        <p>Reach for this when you need a number — a resolution to type into a config, or the panel pitch for working
+          out how close the camera can get before you see the pixels.</p>
+      </div>
+      <div class="graph" role="img"
+        aria-label="Diagram of the LED wall: 21 columns of 7 panels each, curved at 2.5 degree increments, 4200 by 1400 pixels.">
+        <svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg"
+          font-family="Atkinson Hyperlegible, Segoe UI, sans-serif">
+          <!-- curved wall, drawn as 21 narrow columns on an arc -->
+          <g id="wall">
+            <path d="M40 150 A 260 260 0 0 1 520 150" fill="none" stroke="#33455F" stroke-width="1"
+              stroke-dasharray="3 4" />
+            <g fill="#2B3D59" stroke="#465C7D" stroke-width="1">
+              <rect x="42" y="96" width="19" height="62" rx="2" transform="rotate(25 51 127)" />
+              <rect x="66" y="88" width="19" height="62" rx="2" transform="rotate(22.5 75 119)" />
+              <rect x="90" y="81" width="19" height="62" rx="2" transform="rotate(20 99 112)" />
+              <rect x="114" y="75" width="19" height="62" rx="2" transform="rotate(17.5 123 106)" />
+              <rect x="138" y="70" width="19" height="62" rx="2" transform="rotate(15 147 101)" />
+              <rect x="162" y="66" width="19" height="62" rx="2" transform="rotate(12.5 171 97)" />
+              <rect x="186" y="63" width="19" height="62" rx="2" transform="rotate(10 195 94)" />
+              <rect x="210" y="61" width="19" height="62" rx="2" transform="rotate(7.5 219 92)" />
+              <rect x="234" y="60" width="19" height="62" rx="2" transform="rotate(5 243 91)" />
+              <rect x="258" y="59" width="19" height="62" rx="2" transform="rotate(2.5 267 90)" />
+              <rect x="282" y="59" width="19" height="62" rx="2" />
+              <rect x="306" y="59" width="19" height="62" rx="2" transform="rotate(-2.5 315 90)" />
+              <rect x="330" y="60" width="19" height="62" rx="2" transform="rotate(-5 339 91)" />
+              <rect x="354" y="61" width="19" height="62" rx="2" transform="rotate(-7.5 363 92)" />
+              <rect x="378" y="63" width="19" height="62" rx="2" transform="rotate(-10 387 94)" />
+              <rect x="402" y="66" width="19" height="62" rx="2" transform="rotate(-12.5 411 97)" />
+              <rect x="426" y="70" width="19" height="62" rx="2" transform="rotate(-15 435 101)" />
+              <rect x="450" y="75" width="19" height="62" rx="2" transform="rotate(-17.5 459 106)" />
+              <rect x="474" y="81" width="19" height="62" rx="2" transform="rotate(-20 483 112)" />
+              <rect x="498" y="88" width="19" height="62" rx="2" transform="rotate(-22.5 507 119)" />
+              <rect x="522" y="96" width="19" height="62" rx="2" transform="rotate(-25 531 127)" />
+            </g>
+          </g>
+
+          <!-- callouts -->
+          <text x="280" y="34" fill="#fff" font-size="14" font-weight="700" text-anchor="middle">21 columns, 7 panels
+            high</text>
+          <text x="280" y="53" fill="#8EA0BE" font-size="12.5" text-anchor="middle">each column turned 2.5° from the
+            next</text>
+
+          <line x1="42" y1="196" x2="538" y2="196" stroke="#6FD19E" stroke-width="2" />
+          <polygon points="42,196 54,191 54,201" fill="#6FD19E" />
+          <polygon points="538,196 526,191 526,201" fill="#6FD19E" />
+          <text x="280" y="216" fill="#6FD19E" font-size="12.5" text-anchor="middle">10.5 m of panel, spanning 10.2 m
+            across the room</text>
+          <text x="280" y="236" fill="#8EA0BE" font-size="12.5" text-anchor="middle">4200 × 1400 pixels</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="sheetwrap">
+
+    <section class="sheet-sec" id="wall">
+      <h2>The main LED wall</h2>
+      <ul class="speclist">
+        <li><span class="k">Width</span><span class="v"><strong>10.2 m</strong> measured straight across the room</span>
+        </li>
+        <li><span class="k">Height</span><span class="v"><strong>3.5 m</strong></span></li>
+        <li><span class="k">Columns</span><span class="v"><strong>21</strong>, each turned <strong>2.5°</strong> from
+            its neighbour</span></li>
+        <li><span class="k">Panels per column</span><span class="v"><strong>7</strong></span></li>
+        <li><span class="k">Total panels</span><span class="v"><strong>147</strong></span></li>
+        <li><span class="k">Resolution</span><span class="v"><strong>4200 × 1400</strong> pixels</span></li>
+      </ul>
+
+      <div class="note"><strong class="label">Why the width looks like two different numbers</strong>
+        <p>Twenty-one panels at 500 mm each is <strong>10.5 m of panel</strong>. Because the wall is curved, the
+          straight-line distance from one end to the other is shorter than the panel run — that works out at
+          <strong>10.17 m</strong>, which is the 10.2 m in the original spec.</p>
+        <p>Both numbers are right, they just measure different things. Use 10.5 m when you're counting panels, and 10.2
+          m when you're working out whether something fits in the room.</p>
+      </div>
+    </section>
+
+    <section class="sheet-sec" id="hardware">
+      <h2>Hardware</h2>
+      <ul class="speclist">
+        <li><span class="k">LED panels</span><span class="v">Absen PL2.5 Pro, <strong>2.5 mm</strong> pixel
+            pitch</span></li>
+        <li><span class="k">Panel size</span><span class="v"><strong>500 × 500 mm</strong>, 200 × 200 pixels
+            each</span></li>
+        <li><span class="k">Video processors</span><span class="v">Brompton Tessera SX40 <strong>× 2</strong></span>
+        </li>
+        <li><span class="k">Render nodes</span><span class="v"><strong>2</strong>, one per side of the wall — see <a
+              href="../ndisplay/">Setting up nDisplay</a></span></li>
+      </ul>
+
+      <div class="note"><strong class="label">What pixel pitch means for your shot</strong>
+        <p>2.5 mm is the distance between one LED and the next. Get the camera close enough and you start seeing
+          individual pixels, or moiré patterning where the LED grid beats against the sensor grid.</p>
+        <p>There's no single safe distance — it depends on lens, sensor and aperture. If the wall starts to shimmer in
+          the viewfinder, backing the camera off or opening up the aperture to throw the wall slightly out of focus
+          usually clears it.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="sitefoot">
+    <p><a class="backhome" href="../../"><span class="arrow">&larr;</span> Back to the VGAD Wiki</a></p>
+  </footer>
+
+</body>
+
+</html>

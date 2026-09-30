@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Disguise ICVFX Workflow · VGAD Wiki</title>
+  <meta name="description"
+    content="The XR workflow using Unreal Engine 5 and Disguise Designer: RenderStream, Multi-User, cluster pools and channel mappings.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/wiki.css">
+</head>
+
+<body data-progress-key="disguise-icvfx-progress">
+
+  <div class="wikibar">
+    <div class="wikibar-inner">
+      <a class="home" href="../../"><span class="arrow">&larr;</span> VGAD Wiki</a>
+      <span class="crumb"><span class="sep">/</span> <span>Virtual Production</span> <span class="sep">/</span>
+        <span class="here">Disguise ICVFX Workflow</span></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Disguise ICVFX Workflow</h1>
+        <p class="lede">The XR workflow with Unreal Engine and Disguise Designer, concentrating on what you set up
+          inside Unreal.</p>
+        <p>Two halves: get Unreal ready, then point Disguise at it. Do them in that order — Disguise can't configure a
+          RenderStream asset that Unreal hasn't produced yet.</p>
+      </div>
+      <div class="graph" role="img"
+        aria-label="Diagram: Unreal on the editor machines sends frames through RenderStream to Disguise Designer, which drives the render machine and the wall. Multi-User keeps the editors in sync.">
+        <svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg"
+          font-family="Atkinson Hyperlegible, Segoe UI, sans-serif">
+
+          <path d="M175 74 H203" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <polygon points="203,68 217,74 203,80" fill="#fff" opacity=".85" />
+          <path d="M362 74 H390" stroke="#fff" stroke-width="3" fill="none" opacity=".85" />
+          <polygon points="390,68 404,74 390,80" fill="#fff" opacity=".85" />
+
+          <!-- multi-user loop under the editors -->
+          <path d="M40 130 V168 H175 V130" stroke="#6FD19E" stroke-width="2.5" fill="none" stroke-dasharray="6 5" />
+          <text x="107" y="192" fill="#6FD19E" font-size="12.5" text-anchor="middle">Multi-User keeps every</text>
+          <text x="107" y="210" fill="#6FD19E" font-size="12.5" text-anchor="middle">editor on the same scene</text>
+
+          <!-- unreal -->
+          <g>
+            <rect x="20" y="28" width="155" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M20 38 a10 10 0 0 1 10 -10 h135 a10 10 0 0 1 10 10 v18 h-155z" fill="#2F6FDE" />
+            <text x="34" y="50" fill="#fff" font-size="14" font-weight="700">Unreal</text>
+            <text x="34" y="83" fill="#C9D5EA" font-size="12.5">FS-BB1 · BB2 · BB3</text>
+            <text x="34" y="102" fill="#C9D5EA" font-size="12.5">inner + outer frustum</text>
+          </g>
+
+          <!-- disguise -->
+          <g>
+            <rect x="217" y="28" width="145" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M217 38 a10 10 0 0 1 10 -10 h125 a10 10 0 0 1 10 10 v18 h-145z" fill="#7B4FD6" />
+            <text x="231" y="50" fill="#fff" font-size="14" font-weight="700">Disguise</text>
+            <text x="231" y="83" fill="#C9D5EA" font-size="12.5">RenderStream layer</text>
+            <text x="231" y="102" fill="#C9D5EA" font-size="12.5">cluster pool</text>
+          </g>
+
+          <!-- wall -->
+          <g>
+            <rect x="404" y="28" width="136" height="92" rx="10" fill="#26354F" stroke="#3A4B69" />
+            <path d="M404 38 a10 10 0 0 1 10 -10 h116 a10 10 0 0 1 10 10 v18 h-136z" fill="#1F9E6A" />
+            <text x="418" y="50" fill="#fff" font-size="14" font-weight="700">LED wall</text>
+            <text x="418" y="83" fill="#C9D5EA" font-size="12.5">via render machine</text>
+            <text x="418" y="102" fill="#C9D5EA" font-size="12.5">10.10.10.201</text>
+          </g>
+
+          <text x="290" y="235" fill="#8EA0BE" font-size="12.5" text-anchor="middle">Unreal renders the frames.
+            Disguise decides where they go.</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="toc" aria-label="Guide sections">
+      <h2>In this guide</h2>
+      <ol id="toc">
+        <li><a href="#kit">What you need</a></li>
+        <li><a href="#plugin">Install the RenderStream plugin</a></li>
+        <li><a href="#settings">RenderStream project settings</a></li>
+        <li><a href="#cameras">Build the camera rig</a></li>
+        <li><a href="#udp">Point Unreal at this machine</a></li>
+        <li><a href="#mu">Multi-User settings</a></li>
+        <li><a href="#host">Host the session</a></li>
+        <li><a href="#copy">Copy the project to the render server</a></li>
+        <li><a href="#layer">Add the RenderStream layer</a></li>
+        <li><a href="#pool">Cluster pool and assigner</a></li>
+        <li><a href="#mappings">Channel mappings</a></li>
+        <li><a href="#screen">Add the screen and start</a></li>
+      </ol>
+      <p class="toc-progress" id="progress" aria-live="polite"></p>
+      <button class="reset" id="reset" type="button">Clear my ticks</button>
+    </nav>
+
+    <main>
+
+      <!-- Part 1 -->
+
+      <section class="part" id="kit">
+        <div class="part-head">
+          <div class="part-num">1</div>
+          <div>
+            <h2>What you need</h2>
+            <p>Two machines at minimum, and a project that is ready to be pushed hard.</p>
+          </div>
+        </div>
+
+        <ul>
+          <li>A computer running <strong>Unreal Engine</strong></li>
+          <li>A computer running <strong>Disguise Designer</strong></li>
+        </ul>
+
+        <div class="note warn"><strong class="label">Optimise your project first</strong>
+          <p>Do this before you touch RenderStream or Multi-User. Once the wall is live you are rendering the scene
+            several times over — once for the inner frustum, once for the outer, once for the mesh — so anything
+            expensive gets multiplied.</p>
+          <p>Coming back to optimise afterwards means redoing settings work, because performance problems look like
+            configuration problems and you'll waste a session chasing the wrong thing.</p>
+        </div>
+
+        <h3>Machine addresses</h3>
+        <p>You'll be asked for these more than once.</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Machine</th>
+                <th>Role</th>
+                <th>IP address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>FS-BB1</strong></td>
+                <td>Editor</td>
+                <td class="ip">10.10.10.35</td>
+              </tr>
+              <tr>
+                <td><strong>FS-BB2</strong></td>
+                <td>Editor</td>
+                <td class="ip">10.10.10.36</td>
+              </tr>
+              <tr>
+                <td><strong>FS-BB3</strong></td>
+                <td>Editor</td>
+                <td class="ip">10.10.10.37</td>
+              </tr>
+              <tr>
+                <td><strong>Render server</strong></td>
+                <td>Runs the copied project</td>
+                <td class="ip">10.10.10.201</td>
+              </tr>
+              <tr>
+                <td><strong>FS-BB4</strong></td>
+                <td>Multi-User session host</td>
+                <td class="ip"><span class="ph">[IP not recorded]</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note"><strong class="label">Two gaps worth closing</strong>
+          <p>FS-BB4 appears in the Disguise settings as the session host, but has no address in the source document.
+            Add it above once you've checked.</p>
+          <p>The <a href="../ndisplay/">nDisplay guide</a> writes these machines with underscores — <code>FS_BB1</code>
+            — and this workflow uses hyphens. Same machines. Worth settling on one spelling across the studio.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="kit"> Project optimised, machines identified</label>
+      </section>
+
+      <!-- Part 2 -->
+
+      <section class="part" id="plugin">
+        <div class="part-head">
+          <div class="part-num">2</div>
+          <div>
+            <h2>Install the RenderStream plugin</h2>
+            <p>RenderStream is how Disguise gets frames out of Unreal. It goes into the project, not the engine.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>In your Unreal project folder, create a folder called <code>Plugins</code> if there isn't one.</li>
+          <li>Go to <a href="https://github.com/disguise-one/RenderStream-UE/releases">github.com/disguise-one/RenderStream-UE/releases</a>.
+          </li>
+          <li>Find the release that matches <strong>your version of Unreal</strong> and download it.</li>
+          <li>Extract the zip into the <code>Plugins</code> folder.</li>
+        </ol>
+
+        <p>The result should look like this. One folder between the project and the plugin's own files — no more, no
+          less.</p>
+
+        <pre class="tree" aria-label="Correct plugin folder layout">UE5_Project_Name/
+└── Plugins/
+    └── RenderStream-UE/        <span class="ok">← the plugin's files sit directly in here</span>
+        ├── Source/
+        ├── Resources/
+        └── RenderStream.uplugin</pre>
+
+        <div class="note warn"><strong class="label">Get it from the source, not from another project</strong>
+          <p>Always download from GitHub or copy from a known master version. Copying the plugin out of another Unreal
+            project is how you end up running a build made for a different engine version, which fails in ways that
+            look like configuration errors.</p>
+        </div>
+
+        <ol class="steps" start="5">
+          <li>Open the Unreal project and go to <span class="ui">Edit</span> → <span class="ui">Plugins</span>.</li>
+          <li>Enable <strong>Disguise RenderStream</strong>. While you're there, enable <strong>Multi-User
+              Editing</strong> too — you'll need it in Part 6 and this saves a second restart.</li>
+          <li>Restart the Unreal editor.</li>
+        </ol>
+
+        <label class="done-toggle"><input type="checkbox" data-part="plugin"> Plugin installed and enabled</label>
+      </section>
+
+      <!-- Part 3 -->
+
+      <section class="part" id="settings">
+        <div class="part-head">
+          <div class="part-num">3</div>
+          <div>
+            <h2>RenderStream project settings</h2>
+            <p>Two settings, both under <span class="ui">Edit</span> → <span class="ui">Project Settings</span>.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Under <span class="ui">Maps &amp; Modes</span>, set both <span class="ui">Editor Startup Map</span> and
+            <span class="ui">Game Default Map</span> to your main VP environment map.</li>
+          <li>Under <span class="ui">Plugins</span> → <span class="ui">Disguise RenderStream</span>, set <span
+              class="ui">Scene Selection</span> to <strong>Maps</strong>.</li>
+        </ol>
+
+        <label class="done-toggle"><input type="checkbox" data-part="settings"> RenderStream settings done</label>
+      </section>
+
+      <!-- Part 4 -->
+
+      <section class="part" id="cameras">
+        <div class="part-head">
+          <div class="part-num">4</div>
+          <div>
+            <h2>Build the camera rig</h2>
+            <p>Two cameras in exactly the same place, parented to one actor. Disguise treats them as separate channels.
+            </p>
+          </div>
+        </div>
+
+        <p>The inner frustum is the high-quality region the camera is actually looking at. The outer frustum fills the
+          rest of the wall, so what spills past the camera still lights the set and reflects off anything shiny. That's
+          why they render at different quality later.</p>
+
+        <ol class="steps">
+          <li>In your main map, create two <span class="ui">Cine Camera Actors</span>.</li>
+          <li>Name them exactly <code>inner frustum</code> and <code>outer frustum</code>.</li>
+          <li>Place them at the same location.</li>
+          <li>Create an <span class="ui">Empty Actor</span> and position it at that same point.</li>
+          <li>In the Outliner, drag both cameras onto the empty actor so they become its children.</li>
+          <li><span class="ui">Save All</span>.</li>
+        </ol>
+
+        <div class="note"><strong class="label">The names travel</strong>
+          <p>You'll pick these cameras by name in Part 11 when you set up channel mappings in Disguise. Rename them
+            later and the mappings stop matching.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="cameras"> Cameras built and parented</label>
+      </section>
+
+      <!-- Part 5 -->
+
+      <section class="part" id="udp">
+        <div class="part-head">
+          <div class="part-num">5</div>
+          <div>
+            <h2>Point Unreal at this machine</h2>
+            <p>Multi-User talks over UDP, and each machine has to announce its own address.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Go to <span class="ui">Edit</span> → <span class="ui">Project Settings</span> → <span class="ui">UDP
+              Messaging</span>.</li>
+          <li>Set <span class="ui">Unicast Endpoint</span> to the IP of the machine you are sitting at — see the table
+            in Part 1.</li>
+          <li>Click <span class="ui">Set as Default</span> and accept the pop-ups.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">This one is per machine</strong>
+          <p>Every machine needs its own address here, including the render server in Part 8. Copying the project
+            without changing this is the most common reason a machine silently fails to join the session.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="udp"> Unicast endpoint set</label>
+      </section>
+
+      <!-- Part 6 -->
+
+      <section class="part" id="mu">
+        <div class="part-head">
+          <div class="part-num">6</div>
+          <div>
+            <h2>Multi-User settings</h2>
+            <p>Still in <span class="ui">Project Settings</span>, under <span class="ui">Multi-User Editing</span>.</p>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Multi-User Toolbar</td>
+                <td><strong>Enabled</strong></td>
+              </tr>
+              <tr>
+                <td>Auto Connect and Auto Retry</td>
+                <td><strong>Disabled</strong></td>
+              </tr>
+              <tr>
+                <td>Default Server URL</td>
+                <td class="ip">10.10.10.35 — whichever machine hosts the session</td>
+              </tr>
+              <tr>
+                <td>Default Session Name</td>
+                <td>Anything, but lowercase and named after the production</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ol class="steps">
+          <li>Click <span class="ui">Set as Default</span> and accept the pop-ups.</li>
+        </ol>
+
+        <div class="note"><strong class="label">Why auto-connect is off</strong>
+          <p>It was turned off during testing to stop Unreal repeatedly trying to join a session that didn't exist yet,
+            which makes startup problems much harder to read.</p>
+          <p>Once the studio workflow is settled it's reasonable to turn it back on.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="mu"> Multi-User configured</label>
+      </section>
+
+      <!-- Part 7 -->
+
+      <section class="part" id="host">
+        <div class="part-head">
+          <div class="part-num">7</div>
+          <div>
+            <h2>Host the session</h2>
+            <p>Done on the hosting machine — in Futures Studio, usually the one furthest left.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Open the <span class="ui">Multi-User Browser</span>.</li>
+          <li>Launch a server.</li>
+          <li>Create a new session. Keep the name short, and make it <strong>exactly</strong> what you typed as the
+            default session name in Part 6.</li>
+          <li>Connect the host to its own session.</li>
+          <li>If that all works, save the project and close Unreal.</li>
+        </ol>
+
+        <div class="note check"><strong class="label">The name has to match in three places</strong>
+          <p>The session name appears in the Multi-User settings, in the session you create here, and again in the
+            Disguise engine settings in Part 9. A mismatch in any one of them means Disguise joins nothing, with no
+            obvious error.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="host"> Session running and connected</label>
+      </section>
+
+      <!-- Part 8 -->
+
+      <section class="part" id="copy">
+        <div class="part-head">
+          <div class="part-num">8</div>
+          <div>
+            <h2>Copy the project to the render server</h2>
+            <p>The render server runs its own copy, and Multi-User will only sync copies that match.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>With Unreal closed, copy the <strong>full</strong> Unreal project to the render server.</li>
+          <li>Open the copied project and go to <span class="ui">Edit</span> → <span class="ui">Project Settings</span>
+            → <span class="ui">UDP Messaging</span>.</li>
+          <li>Change <span class="ui">Unicast Endpoint</span> to the render server's own address, <span
+              class="ip">10.10.10.201</span>.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Identical means identical</strong>
+          <p>Multi-User compares the projects. A stray asset, a different plugin version or a half-copied folder will
+            stop the session syncing.</p>
+          <p>The unicast endpoint in step 3 is the one deliberate difference — every machine announces its own address.
+          </p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="copy"> Render server has its copy</label>
+      </section>
+
+      <!-- Part 9 -->
+
+      <section class="part" id="layer">
+        <div class="part-head">
+          <div class="part-num">9</div>
+          <div>
+            <h2>Add the RenderStream layer</h2>
+            <p>Over to Disguise Designer. From here you're telling Disguise where to find Unreal and how to talk to it.
+            </p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Add a new track. The convention is to name it after the scene.</li>
+          <li>Add a <span class="ui">RenderStream</span> video layer to the timeline — <kbd>Ctrl</kbd> + <kbd>L</kbd>.
+          </li>
+          <li>Select the layer, then right-click on <span class="ui">workload</span> to configure it.</li>
+          <li>Click <span class="ui">Add asset</span>.</li>
+          <li>Filter by <span class="ui">Unreal</span> and select your Unreal project.</li>
+        </ol>
+
+        <div class="note warn"><strong class="label">Project not in the list?</strong>
+          <p>Disguise only sees projects inside its RenderStream project folder, which defaults to
+            <span class="path">C:\Documents</span>. If yours isn't showing, it's in the wrong place.</p>
+        </div>
+
+        <h3>Engine settings</h3>
+        <ol class="steps" start="6">
+          <li>Right-click the asset and choose <span class="ui">Edit engine settings</span>.</li>
+        </ol>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Enable Multi-User Edit</td>
+                <td><strong>Enabled</strong></td>
+              </tr>
+              <tr>
+                <td>Multi-User Session Name</td>
+                <td>The session name from Part 7</td>
+              </tr>
+              <tr>
+                <td>Multi-User Session Host</td>
+                <td><strong>FS-BB4</strong></td>
+              </tr>
+              <tr>
+                <td>Enable Unreal Window</td>
+                <td><strong>Disabled</strong> — this would open Unreal full screen</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="layer"> Asset added and configured</label>
+      </section>
+
+      <!-- Part 10 -->
+
+      <section class="part" id="pool">
+        <div class="part-head">
+          <div class="part-num">10</div>
+          <div>
+            <h2>Cluster pool and assigner</h2>
+            <p>The pool is the set of machines that will render. The assigner decides how work is divided and how
+              frames travel.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Create a cluster pool and name it <code>uepool</code>.</li>
+          <li>Add the render machine to it — the RXiii.</li>
+          <li>Set up the default assigner with the values below.</li>
+        </ol>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Splitting strategy</td>
+                <td>Full frame</td>
+              </tr>
+              <tr>
+                <td>Transport format</td>
+                <td>RGB 4:4:4 8 bit</td>
+              </tr>
+              <tr>
+                <td>Scale factor</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Preferred network</td>
+                <td>MEDIA — <span class="ip">10.10.10.255</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="pool"> Pool and assigner set up</label>
+      </section>
+
+      <!-- Part 11 -->
+
+      <section class="part" id="mappings">
+        <div class="part-head">
+          <div class="part-num">11</div>
+          <div>
+            <h2>Channel mappings</h2>
+            <p>The channels are the cameras you made in Part 4. This is where the inner and outer frustum get different
+              amounts of effort.</p>
+          </div>
+        </div>
+
+        <h3>Inner frustum</h3>
+        <ol class="steps">
+          <li>Select <code>inner frustum</code>.</li>
+          <li>Set <span class="ui">mapping</span> to <strong>mrset (backplate)</strong>.</li>
+          <li>Set <span class="ui">load weight</span> to <strong>1.0</strong>.</li>
+        </ol>
+
+        <h3>Outer frustum</h3>
+        <ol class="steps" start="4">
+          <li>Select <code>outer frustum</code>.</li>
+          <li>Set <span class="ui">load weight</span> to <strong>0.2</strong>.</li>
+        </ol>
+
+        <h3>Mesh</h3>
+        <ol class="steps" start="6">
+          <li>Add a new mapping and name it <code>mesh</code>.</li>
+          <li>Select <span class="ui">geometric / mesh</span>.</li>
+          <li>Set <span class="ui">mapping res scale</span> to <strong>0.2</strong>.</li>
+          <li>Set <span class="ui">render res scale</span> to <strong>0.2</strong>.</li>
+        </ol>
+
+        <div class="note"><strong class="label">Why the weights differ</strong>
+          <p>The inner frustum is what the camera actually records, so it gets full effort. The outer frustum and the
+            mesh only provide lighting and reflections, which nobody sees at full resolution — so they run at a fifth
+            of the load and leave headroom for the part that matters.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="mappings"> All three mappings set</label>
+      </section>
+
+      <!-- Part 12 -->
+
+      <section class="part" id="screen">
+        <div class="part-head">
+          <div class="part-num">12</div>
+          <div>
+            <h2>Add the screen and start</h2>
+            <p>Last step — tell Disguise which surface the camera is looking at, then run it.</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>Add a screen, name it <code>wall</code>, and set its type to <span class="ui">LED screen</span>.</li>
+          <li>In the scene, open the camera options.</li>
+          <li>Expand the hierarchy, click <span class="ui">Add child</span>, and select <code>wall</code>.</li>
+          <li>Click <span class="ui">Start</span> to begin RenderStream from the Unreal project.</li>
+        </ol>
+
+        <div class="note check"><strong class="label">What good looks like</strong>
+          <p>Disguise launches Unreal on the render machine by itself and starts pulling frames. The wall shows your
+            environment, and moving the camera in Unreal moves the view on the wall.</p>
+          <p>If nothing appears, work backwards through the three places the session name has to match — Part 6, Part 7
+            and Part 9. That is almost always where it has gone wrong.</p>
+        </div>
+
+        <label class="done-toggle"><input type="checkbox" data-part="screen"> RenderStream is running</label>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="sitefoot">
+    <p><a class="backhome" href="../../"><span class="arrow">&larr;</span> Back to the VGAD Wiki</a></p>
+    <p><strong>Your ticks are saved in this browser only. They are to keep track while you work through.</strong></p>
+  </footer>
+
+  <script src="../../assets/wiki.js"></script>
+</body>
+
+</html>
