@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Files Not Associated with the Launcher · VGAD Wiki</title>
+  <meta name="description"
+    content="Fix the “uproject files are not associated with this launcher” error by re-linking .uproject files to the Unreal Version Selector.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/wiki.css">
+</head>
+
+<body>
+
+  <div class="wikibar">
+    <div class="wikibar-inner">
+      <a class="home" href="../../"><span class="arrow">&larr;</span> VGAD Wiki</a>
+      <span class="crumb"><span class="sep">/</span> <span>Game</span> <span class="sep">/</span>
+        <span class="here">Project Files Not Associated with the Launcher</span></span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner single">
+      <div>
+        <h1>Project files not associated with the launcher</h1>
+        <p class="lede">You get this error come up every time you open the Epic Launcher and go to the Unreal Engine tab.</p>
+        <p class="errtext">uproject files are not associated with this launcher</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="sheetwrap">
+
+    <section class="sheet-sec" id="why">
+      <h2>Why it happens</h2>
+      <p>This usually happens after the Unreal Engine installation has been moved, or a folder it sits in has been
+        renamed. Your <code>.uproject</code> files lose their link to the Epic Games Launcher, so Windows no longer
+        knows what to open them with.</p>
+      <div class="note"><strong class="label">What the fix actually does</strong>
+        <p>A small program called the <strong>Unreal Version Selector</strong> is what opens a <code>.uproject</code>
+          file and hands it to the right version of Unreal. Running it once with <code>-fileassociations</code> on the
+          end tells it to register itself with Windows again, so double-clicking a project works the way it used to.
+        </p>
+        <p>Your projects themselves are fine. Nothing inside them is changed.</p>
+      </div>
+    </section>
+
+    <section class="sheet-sec" id="fix">
+      <h2>The fix</h2>
+      <p>You'll make a shortcut to the Unreal Version Selector, add <code>-fileassociations</code> to it, and run it
+        once as administrator.</p>
+
+      <h3>Find the Unreal Version Selector</h3>
+      <ol class="steps">
+        <li>Open File Explorer and go to the Epic Games Launcher's binaries folder. By default that is:
+          <p><span class="path">C:\Program Files (x86)\Epic Games\Launcher\Engine\Binaries\Win64</span></p>
+          <p>If it isn't there, try <span class="path">C:\Program Files\Epic Games\Launcher\Engine\Binaries\Win64</span>.
+          </p>
+        </li>
+        <li>Look for <code>UnrealVersionSelector.exe</code> in that folder.</li>
+      </ol>
+
+      <h3>Make a shortcut to it</h3>
+      <ol class="steps" start="3">
+        <li>Right-click <code>UnrealVersionSelector.exe</code> and choose <span class="ui">Create shortcut</span>.</li>
+        <li>Right-click the new shortcut and choose <span class="ui">Properties</span>.</li>
+        <li>In the <span class="ui">Target</span> field, click at the very end of the text and add a space followed by
+          <code>-fileassociations</code>. It should end up looking like this:
+          <p><code>"C:\...\UnrealVersionSelector.exe" -fileassociations</code></p>
+        </li>
+        <li>Click <span class="ui">Apply</span>, then <span class="ui">OK</span>.</li>
+      </ol>
+
+      <div class="note warn"><strong class="label">Outside the quotation marks</strong>
+        <p>The path in the <span class="ui">Target</span> field is wrapped in quotation marks.
+          <code>-fileassociations</code> goes after the closing quotation mark, not inside it. Put it inside and Windows
+          reads it as part of the file name and can't find the program.</p>
+      </div>
+
+      <h3>Run it</h3>
+      <ol class="steps" start="7">
+        <li>Right-click the shortcut you just changed and choose <span class="ui">Run as administrator</span>.</li>
+        <li>Wait a few seconds while Windows updates its file associations. There may be nothing to see while it
+          happens.</li>
+      </ol>
+
+      <div class="note check"><strong class="label">Check it worked</strong>
+        <p>Open the <code>Epic Games Launcher</code> and click on the Unreal tab. It should open without the error now.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="sitefoot">
+    <p><a class="backhome" href="../../"><span class="arrow">&larr;</span> Back to the VGAD Wiki</a></p>
+  </footer>
+
+</body>
+
+</html>
