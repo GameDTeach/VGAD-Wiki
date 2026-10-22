@@ -213,6 +213,10 @@ kbd {
 .hero p { margin: 0 0 .8rem; max-width: 36rem; color: var(--muted); font-size: 1.15rem }
 .hero .lede { color: var(--ink) }
 
+/* An error string in a hero gets more room than prose does — it is compared
+   character by character against what is on the reader's screen. */
+.hero .errtext { max-width: 52rem; font-size: .92rem; margin-top: 1.1rem }
+
 .graph { background: var(--node); border-radius: 14px; padding: 1rem; overflow-x: auto }
 .graph svg { display: block; min-width: 480px; width: 100%; height: auto }
 
@@ -267,7 +271,9 @@ kbd {
 .card.vp { border-left-color: var(--node-head-b) }
 .card.vp:hover { border-color: var(--node-head-b) }
 
-/* Small badge saying what kind of page the card leads to */
+/* Small badge saying what kind of page the card leads to.
+   The card's left border carries the CATEGORY; this badge carries the TYPE.
+   Keep those two axes separate. */
 .kind {
   display: inline-block;
   font-family: var(--mono);
@@ -281,7 +287,11 @@ kbd {
   margin-bottom: .5rem;
 }
 
-.kind.ref { background: var(--amber-soft); color: var(--amber) }
+/* Reference material — quiet, because nothing is wrong */
+.kind.ref { background: var(--paper); color: var(--muted); box-shadow: inset 0 0 0 1px var(--rule) }
+
+/* A fix for a specific fault — amber, the system's "something is broken" colour */
+.kind.fix { background: var(--amber-soft); color: var(--amber) }
 
 .card h3 {
   font-family: var(--display);
@@ -341,6 +351,78 @@ kbd {
 .speclist .k { font-weight: 700; min-width: 11rem; flex: none }
 .speclist .v { color: var(--muted) }
 .speclist .v strong { color: var(--ink); font-family: var(--mono); font-weight: 500 }
+
+/* ==========================================================================
+   Troubleshooting pages - error, then fix
+   Built on .sheetwrap / .sheet-sec. Nothing here collapses: people arrive
+   searching for an error string, and Ctrl+F misses collapsed content in
+   Firefox and Safari.
+   ========================================================================== */
+
+.faultindex {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 0 0 2.4rem;
+}
+
+.faultindex h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0 0 .6rem;
+}
+
+.faultindex ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem }
+.faultindex a { text-decoration: none; display: block; padding: .2rem .3rem; border-radius: 5px }
+.faultindex a:hover { background: var(--wire-soft) }
+
+.fault {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 5px solid var(--amber);
+  border-radius: 0 10px 10px 0;
+  padding: 1.1rem 1.2rem;
+  margin: 0 0 1.2rem;
+  scroll-margin-top: 1rem;
+}
+
+.fault > h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 .6rem;
+}
+
+/* The literal string the person is reading off their screen.
+   pre-wrap keeps the line breaks of a multi-line error; ligatures are off so
+   "->" stays two characters instead of being drawn as an arrow. */
+.errtext {
+  font-family: var(--mono);
+  font-variant-ligatures: none;
+  font-size: .88rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background: var(--amber-soft);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: .6rem .8rem;
+  margin: 0 0 .8rem;
+  overflow-wrap: anywhere;
+}
+
+.fault > h4 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: .95rem;
+  margin: 1rem 0 .3rem;
+  color: var(--muted);
+}
+
+.fault > h4:first-of-type { margin-top: 0 }
+.fault ol.steps { margin-bottom: 0 }
+.fault > *:last-child { margin-bottom: 0 }
 
 /* ==========================================================================
    Guide layout
